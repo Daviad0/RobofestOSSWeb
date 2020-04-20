@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "Judge Controller";
+}
+@model RobofestWTE.Models.JudgeIndexPageModel
+<style>
+    .btn-group {
+        display: flex;
+    }
+
+    .btn {
+        flex: 1
+    }
+
+    btn-default: {
+        background-color: gray
+    }
+
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #ecbb06;
+        color: white;
+        text-align: center;
+    }
+
+    .true {
+        color: green
+    }
+
+    .false {
+        color: green
+    }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<h2 style="text-align:center">Scoresheet</h2>
+<br />
+@foreach (var field in Model.Fields.OrderBy(f => f.FieldNumber))
+{
+
+    <div style="background-color:lightgray;border-radius:6px;border:5px solid lightgray;z-index:-1;text-align:center">
+        <div style="display:inherit">
+            <h2>Field #@field.FieldNumber <span class="@field.Using" style="color:green">&#9632;</span></h2>
+            <h4>Currently: @field.CurrentTeamNumber, Junior: @field.Junior</h4>
+        </div>
+    </div>
+    <br />
+
+}
+
+<!--<div class="footer" style="z-index:1">
+    <br />
+    <h3>Total Points: <span id="total">0</span></h3>
+    <br />
+</div>-->

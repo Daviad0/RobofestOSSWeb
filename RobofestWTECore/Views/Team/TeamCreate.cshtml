@@ -1,0 +1,114 @@
+﻿@model RobofestWTE.Models.StudentTeam
+
+@{
+    ViewBag.Title = "Create";
+}
+<style>
+    .btn-group {
+        display: flex;
+    }
+
+    .btn {
+        flex: 1
+    }
+
+    btn-default: {
+        background-color: gray
+    }
+
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #ecbb06;
+        color: white;
+        text-align: center;
+    }
+
+    .createforms {
+        border: none;
+        border-bottom: 2px solid gray;
+        padding-left: 2px;
+        transition: 0.3s;
+        border-radius: 4px;
+    }
+
+        .createforms:hover {
+            background-color: #ededed;
+            padding-left: 5px;
+        }
+
+        .createforms:focus {
+            border-bottom: 2px solid red;
+            background-color: #ededed;
+            padding-left: 5px;
+        }
+
+        .createforms:disabled {
+            cursor: not-allowed;
+            padding-left: 2px;
+            transition: 0.3s;
+        }
+
+            .createforms:disabled:hover, .createforms:disabled:active {
+                cursor: not-allowed;
+                background-color: red;
+                padding-left: 5px;
+                opacity: 0.6;
+            }
+</style>
+<h2>Create</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal" style="text-align:center">
+        <h4>Team</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    </div>
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.CompID, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.CompID, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.CompID, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.TeamName, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.TeamName, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.TeamName, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.TeamNumberBranch, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.TeamNumberBranch, new { Value = "1000", @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.TeamNumberBranch, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.TeamNumberSpecific, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.TeamNumberSpecific, new { Value = "1", @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.TeamNumberSpecific, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Location, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.Location, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Coach, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.Coach, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Coach, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+        <input type="submit" value="Create" class="btn btn-default" />
+    </div>
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
+

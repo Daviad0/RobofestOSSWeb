@@ -1,0 +1,234 @@
+﻿@model List<RobofestWTE.Models.UserListModel>
+
+@{
+    ViewBag.Title = "Users";
+}
+    <body>
+        <h2>Volunteer & Student Management</h2>
+
+        <table class="table table-hover">
+            <tr style="font-size:20px">
+                <th style="background-color:#ffffff">
+                    Username
+                </th>
+                <th style="background-color:#ffffff">
+                    Role(s)
+                </th>
+                <th>
+                    Add or Remove
+                </th>
+            </tr>
+
+            @foreach (var user in Model)
+            {
+
+                <tr>
+                    <td>
+                        @user.UserName
+                    </td>
+                    <td id="@user.UserName" class="@user.UserName">
+                        @{
+                            int i = 0;
+                        }
+                        @foreach (var role in user.Roles)
+                        {
+                            i++;
+                            if (role == "Judge")
+                            {
+                                <span style="background-color:blue;color:white;padding:3px;border-radius:2px;margin-bottom:10px;font-size:10px">Judge</span>
+                            }
+                            else if (role == "FieldStaff")
+                            {
+                                <span style="background-color:cornflowerblue;color:white;padding:3px;border-radius:2px;margin-bottom:10px;font-size:10px">Field Staff</span>
+                            }
+                            else if (role == "Manager")
+                            {
+                                <span style="background-color:darkorchid;color:white;padding:3px;border-radius:2px;margin-bottom:10px;font-size:10px">Management</span>
+                            }
+                            else if (role == "Admin")
+                            {
+                                <span style="background-color:deeppink;color:white;padding:3px;border-radius:2px;margin-bottom:10px;font-size:10px">Admin</span>
+                            }
+                            else if (role == "Main")
+                            {
+                                <span style="background-color:orange;color:white;padding:3px;border-radius:2px;margin-bottom:10px;font-size:10px">Main Account</span>
+                            }
+                            else if (role == "Tech")
+                            {
+                                <span style="background-color:hotpink;color:white;padding:3px;border-radius:2px;margin-bottom:10px;font-size:10px">Website Manager</span>
+                            }
+                            else if (role == "Locked")
+                            {
+                                <span style="border:2px red dashed;color:red;padding:3px;border-radius:2px;margin-bottom:10px;font-size:10px">Locked</span>
+                            }
+
+                        }
+                        @if (i == 0)
+                        {
+                            <span style="background-color:lightgray;color:black;padding:3px;border-radius:2px">Student / Spectator</span>
+                        }
+                    </td>
+                    <td>
+                        <button type="button" class="judge" id="@user.UserID" value="@user.UserName">Judge</button>
+                        <button type="button" class="manager" id="@user.UserID" value="@user.UserName">Manager</button>
+                        <button type="button" class="fieldstaff" id="@user.UserID" value="@user.UserName">Field Staff</button>
+                        <button type="button" class="admin" id="@user.UserID" value="@user.UserName">Admin</button>
+                        <button type="button" class="tech" id="@user.UserID" value="@user.UserName">Website Manager</button>
+                        <button type="button" class="banned" id="@user.UserID" style="background-color:palevioletred" value="@user.UserName">Lock Out</button>
+                    </td>
+                </tr>
+            }
+
+        </table>
+
+        <h2>Judge Field Assignments</h2>
+        <table class="table table-hover">
+            <tr style="font-size:20px">
+                <th style="        background-color: #ffffff">
+                    Username
+                </th>
+                <th style="background-color:#ffffff">
+                    Role(s)
+                </th>
+                <th>
+                    Add or Remove
+                </th>
+            </tr>
+
+            @foreach (var user in Model.Where(u => u.Roles.Contains("Judge")))
+            {
+
+                <tr>
+                    <td>
+                        @user.UserName
+                    </td>
+                    <td id="@user.UserName" class="@user.UserName">
+                        @{ int j = 0;}
+                        @foreach (var role in user.Roles)
+                        {
+                            
+                            if (role == "Field1")
+                            {
+                                j++;
+                                <span style="color:black;padding:3px;border-radius:2px;border:2px solid red">Field 1</span>
+                            }
+                            else if (role == "Field2")
+                            {
+                                j++;
+                                <span style="color: black;padding: 3px;border-radius: 2px;border: 2px solid blue">Field 2</span>
+                            }
+                            else if (role == "Field3")
+                            {
+                                j++;
+                                <span style="color:black;padding:3px;border-radius:2px;border:2px solid green">Field 3</span>
+                            }
+                            else if (role == "Field4")
+                            {
+                                j++;
+                                <span style="color:black;padding:3px;border-radius:2px;border:2px solid orange">Field 4</span>
+                            }
+                            else if (role == "Field5")
+                            {
+                                j++;
+                                <span style="color:black;padding:3px;border-radius:2px;border:2px solid deeppink">Field 5</span>
+                            }
+                            else if (role == "Field6")
+                            {
+                                j++;
+                                <span style="color:black;padding:3px;border-radius:2px;border:2px solid black">Field 6</span>
+                            }
+                            else if (role == "AllFields")
+                            {
+                                j++;
+                                <span style="color:black;padding:3px;border-radius:2px;background-color:mediumspringgreen">All Fields</span>
+                            }
+
+
+                        }
+                        @if (j == 0)
+                        {
+                            <span style="background-color:lightgray;color:black;padding:3px;border-radius:2px">No Assigned Fields</span>
+                        }
+                    </td>
+                    <td>
+                        <button type="button" class="field1a" id="@user.UserID" value="@user.UserName">Field 1</button>
+                        <button type="button" class="field2a" id="@user.UserID" value="@user.UserName">Field 2</button>
+                        <button type="button" class="field3a" id="@user.UserID" value="@user.UserName">Field 3</button>
+                        <button type="button" class="field4a" id="@user.UserID" value="@user.UserName">Field 4</button>
+                        <button type="button" class="field5a" id="@user.UserID" value="@user.UserName">Field 5</button>
+                        <button type="button" class="field6a" id="@user.UserID" value="@user.UserName">Field 6</button>
+                        <button type="button" class="fieldaa" style="background-color:mediumspringgreen" id="@user.UserID" value="@user.UserName">All Fields</button>
+                    </td>
+                </tr>
+            }
+
+        </table>
+
+    </body>
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    $(function () {
+        // Reference the auto-generated proxy for the hub.
+        var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+        chat.on("reloadUsers", function (field, helping) {
+            location.reload(true);
+        });
+        chat.start().then(function () {
+            $(".judge").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Judge");
+            });
+            $(".manager").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Manager");
+            });
+            $(".fieldstaff").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "FieldStaff");
+            });
+            $(".admin").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Admin");
+            });
+            $(".tech").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Tech");
+            });
+            $(".banned").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Locked");
+            });
+            $(".field1a").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Field1");
+            });
+            $(".field2a").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Field2");
+            });
+            $(".field3a").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Field3");
+            });
+            $(".field4a").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Field4");
+            });
+            $(".field5a").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Field5");
+            });
+            $(".field6a").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "Field6");
+            });
+            $(".fieldaa").click(function () {
+                var username = $(this).val();
+                chat.invoke("updateUserRoleAsync", username, "AllFields");
+            });
+
+        });
+    });
+
+</script>

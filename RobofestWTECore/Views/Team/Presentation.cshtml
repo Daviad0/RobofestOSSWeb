@@ -1,0 +1,1173 @@
+﻿@model RobofestWTE.Models.PresentationViewModel
+
+@{
+    ViewBag.Title = "Presentation";
+}
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+
+<style>
+    .almostdone {
+        animation-name: color;
+        animation-duration: 1.5s;
+        animation-iteration-count: infinite;
+    }
+    .status{
+        border-bottom:12px gray solid;
+        border-top:12px gray solid;
+    }
+    @@keyframes color {
+        0% {
+            border-bottom-color: green;
+            border-top-color: green;
+        }
+
+        50% {
+            border-bottom-color: orange;
+            border-top-color: orange;
+        }
+    }
+ .lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #000000;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 1.8s infinite;
+  animation-delay: 1.5s;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 1.8s infinite;
+  animation-delay: 1.5s;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 1.8s infinite;
+  animation-delay: 1.5s;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 1.8s infinite;
+  animation-delay: 1.5s;
+}
+@@keyframes lds-ellipsis1 {
+  0%, 20% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@@keyframes lds-ellipsis3 {
+  0%, 20% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@@keyframes lds-ellipsis2 {
+  0%, 20% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+.currenttimecolon{
+    color:black;
+    animation: blinkanimation 2s infinite;
+}
+@@keyframes blinkanimation{
+    0%, 50%{
+        color:#EEEEEE;
+    }
+    51%, 100%{
+        color:black;
+    }
+}
+.bottleicon {
+  height: 25px;
+  width: 25px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}.fieldstatus{
+       transition:background-color 0.7s;
+   }
+   .disconnectedstatus{
+       transition:background-color 0.7s,color 0.7s;
+   }
+   .disabledstatus{
+       transition: content 0.5s;
+   }
+   .disabledstatus:hover:after{
+       content: ' DISABLED';
+   }
+.rotationspin{
+    animation-name:spin;
+    animation-duration:2s;
+    animation-iteration-count:1;
+}
+@@keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}
+.pointstatus{
+    transition: background-color 0.5s;
+}
+
+</style>
+<body onload="startTime()"></body>
+
+<div class="jumbotron" style="text-align:center;user-select:none;-webkit-user-select:none;-webkit-user-modify:read-only" id="fullscreenthis">
+    <div id="stage1" style="width:100%;margin-left:0;margin-right:0">
+        <table style="width: 100%; background-color: lightgray; border-radius: 8px; padding-bottom: 10px">
+            <tr>
+                <td style="text-align:left;padding-bottom:10px;width:34%;padding:20px">
+                    <img src="~/images/robofest_words_transparent.png" style="height:4vw" />
+                </td>
+                <td style="width:33%;padding:20px">
+                    <span style="font-family:Georgia, 'Times New Roman', Times, serif;text-shadow:2px 2px lightgray;font-size:2.5vw">Field Setup</span>
+                </td>
+                <td style="text-align:right;width:33%;padding:20px">
+                    <strong><span class="statustopbar" style="border-radius:0px 4px 4px 0px;font-family:Arial, Helvetica, sans-serif;background-color:black;padding:5px;color:white;margin-bottom:0px;margin-top:0px;font-size:3vh;border-left:6px solid gray" class="timerarea"><span id="minutes" class="timerarea minutes">0</span>:<span id="seconds" class="timerarea seconds">00</span></span></strong>
+                </td>
+            </tr>
+        </table>
+        <br />
+        <br />
+        <!--<table align="center">
+        <thead>
+            <caption style="text-align:center">Top Teams! (Total: @Model.TeamCount)</caption>
+            <tr style="text-align:center;padding-right:5px;border-bottom:#000000 1px solid">
+                <th width="10%" style="text-align:left">
+                    Rank
+                </th>
+                <th width="30%" style="text-align:center">
+                    Team Number
+                </th>
+                <th width="30%" style="text-align:center">
+                    Team Name
+                </th>
+                <th width="30%" style="text-align:center">
+                    Score
+                </th>
+            </tr>
+        </thead>
+        <tbody class="topteams">
+
+            @{int i = 0; }
+            @foreach (var item in Model.Scoreboard)
+            {
+                i++;
+                if (i > 10)
+                {
+                    <tr style="text-align:center;padding-left:5px">
+                        <th width="10%" style="text-align:left">
+                            @i
+                        </th>
+                        <th width="30%" style="text-align:center">
+                            @item.TeamNumberBranch-@item.TeamNumberSpecific
+                        </th>
+                        <th width="30%" style="text-align:center">
+                            @item.TeamName
+                        </th>
+                        <th width="30%" style="text-align:center" id="@item.TeamNumberBranch-@item.TeamNumberSpecific">
+                            @item.Average
+                        </th>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>-->
+
+
+        <br />
+        <div style="justify-content:space-between;text-align:center">
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px;padding:10px">
+                    <span style="font-size:30px;font-family:Arial, Helvetica, sans-serif">Field 1</span>
+                    <br />
+                    <span class="fas fa-user" style="font-size:50px"> <span class="field1team">EMPTY</span></span>
+                </div>
+                <div class="fieldstatus field1s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px;padding:10px">
+                    <span style="font-size:30px">Field 2</span>
+                    <br />
+                    <span class="fas fa-user" style="font-size:50px"> <span class="field2team">EMPTY</span></span>
+                </div>
+                <div class="fieldstatus field2s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px;padding:10px">
+                    <span style="font-size:30px">Field 3</span>
+                    <br />
+                    <span class="fas fa-user" style="font-size:50px"> <span class="field3team">EMPTY</span></span>
+                </div>
+                <div class="fieldstatus field3s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+            <br />
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px;padding:10px">
+                    <span style="font-size:30px">Field 4</span>
+                    <br />
+                    <span class="fas fa-user" style="font-size:50px"> <span class="field4team">EMPTY</span></span>
+                </div>
+                <div class="fieldstatus field4s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px;padding:10px">
+                    <span style="font-size:30px">Field 5</span>
+                    <br />
+                    <span class="fas fa-user" style="font-size:50px"> <span class="field5team">EMPTY</span></span>
+                </div>
+                <div class="fieldstatus field5s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px;padding:10px">
+                    <span style="font-size:30px">Field 6</span>
+                    <br />
+                    <span class="fas fa-user" style="font-size:50px"> <span class="field6team">EMPTY</span></span>
+                </div>
+                <div class="fieldstatus field6s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+        </div>
+    </div>
+    <div id="stage2">
+        <table style="width:100%;background-color:lightgray;border-radius:8px;padding-bottom:10px">
+            <tr>
+                <td style="text-align:left;padding-bottom:10px;width:34%;padding:20px">
+                    <img src="~/images/robofest_words_transparent.png" style="height:4vw" />
+                </td>
+                <td style="width:33%;padding:20px">
+                    <span style="font-family:Georgia, 'Times New Roman', Times, serif;text-shadow:2px 2px lightgray;font-size:2.5vw">GAME</span>
+                </td>
+                <td style="text-align:right;width:33%;padding:20px">
+                </td>
+            </tr>
+        </table>
+        <br />
+        <br />
+        <div style="border-radius:4px;display:inline-block;border-radius:8px">
+            <strong><span style="border-radius:8px 8px 0px 0px;font-family:Arial, Helvetica, sans-serif;background-color:black;padding:35px;color:white;margin-bottom:0px;margin-top:0px;font-size:200px" class="timerarea"><span id="minutes" class="timerarea minutes">0</span>:<span id="seconds" class="timerarea seconds">00</span></span></strong>
+
+
+            <div style="background-color:lightgray;text-align:center;border-radius:0px 0px 8px 8px">
+
+                <div class="statustimeout" style="background-color:gray;width:100%;height:40px;border-radius:0px 0px 8px 8px"></div>
+            </div>
+
+        </div>
+        <br />
+        <br />
+        <br />
+        <br />
+        <div style="justify-content:space-around">
+            <span style="color:gray;font-size:40px" class="fas" id="nofieldsactive">NO ACTIVE FIELDS</span>
+                <div class="field1st f1live" style="display:none;margin-right:15px">
+                    <div style="border:1px solid gray;background-color:whitesmoke;border-radius:16px;padding-bottom:5px;margin-top:10px;text-align:center">
+                        <div style="margin-top:10px">
+                            <span class="field1team" style="font-family:Arial, Helvetica, sans-serif;font-weight:700;font-size:20px">EMPTY</span>
+                        </div>
+                        <div style="background-color:black;width:93%;margin:5px;color:white;padding:7px;border-radius:4px;font-size:30px">
+                            <span style="font-weight:700" class="fas"><span class="field1scorel">0</span> PTS</span>
+                        </div>
+                        <div style="justify-content:space-between">
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f1frc" class="pointstatus">
+                                <span class="fas fa-sync-alt" style="font-size:25px" id="f1fr"></span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:3px;display:inline-block;border-radius:4px;margin:5px;padding-top:4px;padding-bottom:2px" id="f1ibc" class="pointstatus">
+                                <span style="font-size:25px;font-weight:700;padding-left:9px;padding-right:9px;font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif" id="f1ib">0</span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f1enc" class="pointstatus">
+                                <span class="fas fa-trophy" style="font-size:25px" id="f1en"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <h1 style="font-family:Arial, Helvetica, sans-serif;font-weight:700">1</h1>
+                </div>
+                <div class="field2st f2live" style="display:none;margin-left:15px;margin-right:15px">
+                    <div style="border:1px solid gray;background-color:whitesmoke;border-radius:16px;padding-bottom:5px;margin-top:10px;text-align:center">
+                        <div style="margin-top:10px">
+                            <span class="field2team" style="font-family:Arial, Helvetica, sans-serif;font-weight:700;font-size:20px">EMPTY</span>
+                        </div>
+                        <div style="background-color:black;width:93%;margin:5px;color:white;padding:7px;border-radius:4px;font-size:30px">
+                            <span style="font-weight:700" class="fas"><span class="field2scorel">0</span> PTS</span>
+                        </div>
+                        <div style="justify-content:space-between">
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f2frc" class="pointstatus">
+                                <span class="fas fa-sync-alt" style="font-size:25px" id="f2fr"></span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:3px;display:inline-block;border-radius:4px;margin:5px;padding-top:4px;padding-bottom:2px" id="f2ibc" class="pointstatus">
+                                <span style="font-size:25px;font-weight:700;padding-left:9px;padding-right:9px;font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif" id="f2ib">0</span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f2enc" class="pointstatus">
+                                <span class="fas fa-trophy" style="font-size:25px" id="f2en"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <h1 style="font-family:Arial, Helvetica, sans-serif;font-weight:700">2</h1>
+                </div>
+                <div class="field3st f3live" style="display:none;margin-left:15px;margin-right:15px">
+                    <div style="border:1px solid gray;background-color:whitesmoke;border-radius:16px;padding-bottom:5px;margin-top:10px;text-align:center">
+                        <div style="margin-top:10px">
+                            <span class="field3team" style="font-family:Arial, Helvetica, sans-serif;font-weight:700;font-size:20px">EMPTY</span>
+                        </div>
+                        <div style="background-color:black;width:93%;margin:5px;color:white;padding:7px;border-radius:4px;font-size:30px">
+                            <span style="font-weight:700" class="fas"><span class="field3scorel">0</span> PTS</span>
+                        </div>
+                        <div style="justify-content:space-between">
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f3frc" class="pointstatus">
+                                <span class="fas fa-sync-alt" style="font-size:25px" id="f3fr"></span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:3px;display:inline-block;border-radius:4px;margin:5px;padding-top:4px;padding-bottom:2px" id="f3ibc" class="pointstatus">
+                                <span style="font-size:25px;font-weight:700;padding-left:9px;padding-right:9px;font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif" id="f3ib">0</span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f3enc" class="pointstatus">
+                                <span class="fas fa-trophy" style="font-size:25px" id="f3en"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <h1 style="font-family:Arial, Helvetica, sans-serif;font-weight:700">3</h1>
+                </div>
+                <div class="field4st f4live" style="display:none;margin-left:15px;margin-right:15px">
+                    <div style="border:1px solid gray;background-color:whitesmoke;border-radius:16px;padding-bottom:5px;margin-top:10px;text-align:center">
+                        <div style="margin-top:10px">
+                            <span class="field4team" style="font-family:Arial, Helvetica, sans-serif;font-weight:700;font-size:20px">EMPTY</span>
+                        </div>
+                        <div style="background-color:black;width:93%;margin:5px;color:white;padding:7px;border-radius:4px;font-size:30px">
+                            <span style="font-weight:700" class="fas"><span class="field4scorel">0</span> PTS</span>
+                        </div>
+                        <div style="justify-content:space-between">
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f4frc" class="pointstatus">
+                                <span class="fas fa-sync-alt" style="font-size:25px" id="f4fr"></span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:3px;display:inline-block;border-radius:4px;margin:5px;padding-top:4px;padding-bottom:2px" id="f4ibc" class="pointstatus">
+                                <span style="font-size:25px;font-weight:700;padding-left:9px;padding-right:9px;font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif" id="f4ib">0</span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f4enc" class="pointstatus">
+                                <span class="fas fa-trophy" style="font-size:25px" id="f4en"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <h1 style="font-family:Arial, Helvetica, sans-serif;font-weight:700">4</h1>
+                </div>
+                <div class="field5st f5live" style="display:none;margin-left:15px;margin-right:15px">
+                    <div style="border:1px solid gray;background-color:whitesmoke;border-radius:16px;padding-bottom:5px;margin-top:10px;text-align:center">
+                        <div style="margin-top:10px">
+                            <span class="field5team" style="font-family:Arial, Helvetica, sans-serif;font-weight:700;font-size:20px">EMPTY</span>
+                        </div>
+                        <div style="background-color:black;width:93%;margin:5px;color:white;padding:7px;border-radius:4px;font-size:30px">
+                            <span style="font-weight:700" class="fas"><span class="field5scorel">0</span> PTS</span>
+                        </div>
+                        <div style="justify-content:space-between">
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f5frc" class="pointstatus">
+                                <span class="fas fa-sync-alt" style="font-size:25px" id="f5fr"></span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:3px;display:inline-block;border-radius:4px;margin:5px;padding-top:4px;padding-bottom:2px" id="f5ibc" class="pointstatus">
+                                <span style="font-size:25px;font-weight:700;padding-left:9px;padding-right:9px;font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif" id="f5ib">0</span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f5enc" class="pointstatus">
+                                <span class="fas fa-trophy" style="font-size:25px" id="f5en"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <h1 style="font-family:Arial, Helvetica, sans-serif;font-weight:700">5</h1>
+                </div>
+                <div class="field6st f6live" style="display:none;margin-left:15px">
+                    <div style="border:1px solid gray;background-color:whitesmoke;border-radius:16px;padding-bottom:5px;margin-top:10px;text-align:center">
+                        <div style="margin-top:10px">
+                            <span class="field6team" style="font-family:Arial, Helvetica, sans-serif;font-weight:700;font-size:20px">EMPTY</span>
+                        </div>
+                        <div style="background-color:black;width:93%;margin:5px;color:white;padding:7px;border-radius:4px;font-size:30px">
+                            <span style="font-weight:700" class="fas"><span class="field6scorel">0</span> PTS</span>
+                        </div>
+                        <div style="justify-content:space-between">
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f6frc" class="pointstatus">
+                                <span class="fas fa-sync-alt" style="font-size:25px" id="f6fr"></span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:3px;display:inline-block;border-radius:4px;margin:5px;padding-top:4px;padding-bottom:2px" id="f6ibc" class="pointstatus">
+                                <span style="font-size:25px;font-weight:700;padding-left:9px;padding-right:9px;font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif" id="f6ib">0</span>
+                            </div>
+                            <div style="background-color:gray;color:white;padding:7px;display:inline-block;border-radius:4px;margin:5px" id="f6enc" class="pointstatus">
+                                <span class="fas fa-trophy" style="font-size:25px" id="f6en"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <h1 style="font-family:Arial, Helvetica, sans-serif;font-weight:700">6</h1>
+                </div>
+            </div>
+    </div>
+    <div id="stage32" hidden>
+        <table style="width:100%;background-color:lightgray;border-radius:8px;padding-bottom:10px">
+            <tr>
+                <td style="text-align:left;padding-bottom:10px;width:34%;padding:20px">
+                    <img src="~/images/robofest_words_transparent.png" style="height:4vw" />
+                </td>
+                <td style="width:33%;padding:20px">
+                    <span style="font-family:Georgia, 'Times New Roman', Times, serif;text-shadow:2px 2px lightgray;font-size:2.5vw">Awaiting Judges</span>
+                </td>
+                <td style="text-align:right;width:33%;padding:20px">
+                    <strong><span class="statustopbar" style="border-radius:0px 4px 4px 0px;font-family:Arial, Helvetica, sans-serif;background-color:black;padding:5px;color:white;margin-bottom:0px;margin-top:0px;font-size:3vh;border-left:6px solid gray" class="timerarea"><span id="minutes" class="timerarea minutes">0</span>:<span id="seconds" class="timerarea seconds">00</span></span></strong>
+                </td>
+            </tr>
+        </table>
+        
+        <div style="padding-top:27vh">
+            <h3 style="font-family:Georgia, 'Times New Roman', Times, serif;text-shadow:2px 2px lightgray">Please Wait for Judge & Student Confirmation...</h3>
+            <span id="field1sa" style="background-color:gray;padding:5px;border-radius:6px;color:white;font-size:20px">&#10006;</span>
+            <span id="field2sa" style="background-color:gray;padding:5px;border-radius:6px;color:white;font-size:20px">&#10006;</span>
+            <span id="field3sa" style="background-color:gray;padding:5px;border-radius:6px;color:white;font-size:20px">&#10006;</span>
+            <span id="field4sa" style="background-color:gray;padding:5px;border-radius:6px;color:white;font-size:20px">&#10006;</span>
+            <span id="field5sa" style="background-color:gray;padding:5px;border-radius:6px;color:white;font-size:20px">&#10006;</span>
+            <span id="field6sa" style="background-color:gray;padding:5px;border-radius:6px;color:white;font-size:20px">&#10006;</span>
+        </div>
+    </div>
+    <div id="stage3">
+        <table style="width:100%;background-color:lightgray;border-radius:8px;padding-bottom:10px">
+            <tr>
+                <td style="text-align:left;padding-bottom:10px;width:34%;padding:20px">
+                    <img src="~/images/robofest_words_transparent.png" style="height:4vw" />
+                </td>
+                <td style="width:33%;padding:20px">
+                    <span style="font-family:Georgia, 'Times New Roman', Times, serif;text-shadow:2px 2px lightgray;font-size:2.5vw">Awaiting Judges</span>
+                </td>
+                <td style="text-align:right;width:33%;padding:20px">
+                    <strong><span class="statustopbar" style="border-radius:0px 4px 4px 0px;font-family:Arial, Helvetica, sans-serif;background-color:black;padding:5px;color:white;margin-bottom:0px;margin-top:0px;font-size:3vh;border-left:6px solid gray" class="timerarea"><span id="minutes" class="timerarea minutes">0</span>:<span id="seconds" class="timerarea seconds">00</span></span></strong>
+                </td>
+            </tr>
+        </table>
+        
+        <div style="padding-top:27vh">
+            <div style="justify-content:space-between;text-align:center">
+                <div style="width:30%;display:inline-block;margin:15px">
+                    <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px">
+                        <div class="fieldstatus" style="width:100%;height:164px;background-color:darkorange;text-align:center;color:white;padding:10px;border-radius:8px 8px 0px 0px" id="scorekeeperbackground">
+                            <span class="fas" style="text-align:center;margin-top:65px;font-size:25px">SCOREKEEPER</span>
+                        </div>
+                    </div>
+                
+                    <div class="fieldstatus scorekeeperstatus" style="background-color:darkorange;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-flag"> UNDER REVIEW</span></div>
+                </div>
+                <div style="width:30%;display:inline-block;margin:15px">
+                    <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px">
+                        <div class="fieldstatus"style="width:100%;height:164px;background-color:darkred;text-align:center;color:white;padding:10px;border-radius:8px 8px 0px 0px" id="judgestatusbackground">
+                            <span class="fas" style="text-align:center;margin-top:65px;font-size:25px">GAME JUDGES</span>
+                        </div>
+                    </div>
+                
+                    <div class="fieldstatus judgestatus" style="background-color:darkred;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-edit"> SCORING</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="stage4">
+        
+        <table style="width:100%;background-color:lightgray;border-radius:8px;padding-bottom:10px">
+            <tr>
+                <td style="text-align:left;padding-bottom:10px;width:34%;padding:20px">
+                    <img src="~/images/robofest_words_transparent.png" style="height:4vw" />
+                </td>
+                <td style="width:33%;padding:20px">
+                    <span style="font-family:Georgia, 'Times New Roman', Times, serif;text-shadow:2px 2px lightgray;font-size:2.5vw">Scoring</span>
+                </td>
+                <td style="text-align:right;width:33%;padding:20px">
+                    <strong><span class="statustopbar" style="border-radius:0px 4px 4px 0px;background-color:black;padding:5px;color:white;margin-bottom:0px;margin-top:0px;font-size:3vh;border-left:6px solid gray" class="timerarea"><span id="minutes" class="timerarea minutes">0</span>:<span id="seconds" class="timerarea seconds">00</span></span></strong>
+                </td>
+            </tr>
+        </table>
+        <br />
+        <!--<video style="width:50%" id="videotest" muted>
+            <source src="~/images/082319.mp4" type="video/mp4" />
+        </video>-->
+        <div style="justify-content:space-between;text-align:center">
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px">
+                    <div style="padding:10px;border-radius:8px 8px 0px 0px" id="field1scoretrue" hidden>
+                        <span style="font-size:20px" class="fas">FIELD 1</span>
+                        <br />
+                        <span class="fas fa-user" style="font-size:20px"> <span class="field1team">EMPTY</span> <span style="background-color:darkgreen;color:white;padding:3px;border-radius:4px">2</span></span>
+                        <br />
+                        <div style="justify-content:space-around;margin-top:10px">
+                            <div style="display:inline-block">
+                                <span class="fas field1score" style="font-size:60px;padding:5px;color:white;background-color:black;border-radius:4px">000</span>
+                                <br />
+                                <span class="fas">POINTS</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f1bop">0</span> BOTTLE POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f1bap">0</span> BALL POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f1exp">0</span> EXTRA POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:darkred;color:white;padding:5px;border-radius:4px" id="f1pep">0</span> PENALTY POINTS</span><br />
+                        </div>
+                    </div>
+                    <div style="width:100%;height:272px;background-color:gray;text-align:center;color:white;padding:10px;border-radius:8px 8px 0px 0px" id="field1scorefalse">
+                        <span class="fas" style="text-align:center;margin-top:120px;font-size:25px">FIELD 1</span>
+                    </div>
+                </div>
+                
+                <div class="fieldstatus field1s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+                
+            </div>
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px">
+                    <div style="padding:10px;border-radius:8px 8px 0px 0px" id="field2scoretrue" hidden>
+                        <span style="font-size:20px" class="fas">FIELD 2</span>
+                        <br />
+                        <span class="fas fa-user" style="font-size:20px"> <span class="field2team">EMPTY</span> <span style="background-color:darkgreen;color:white;padding:3px;border-radius:4px">2</span></span>
+                        <br />
+                        <div style="justify-content:space-around;margin-top:10px">
+                            <div style="display:inline-block">
+                                <span class="fas field2score" style="font-size:60px;padding:5px;color:white;background-color:black;border-radius:4px">000</span>
+                                <br />
+                                <span class="fas">POINTS</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f2bop">0</span> BOTTLE POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f2bap">0</span> BALL POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f2exp">0</span> EXTRA POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:darkred;color:white;padding:5px;border-radius:4px" id="f2pep">0</span> PENALTY POINTS</span><br />
+                        </div>
+                    </div>
+                    <div style="width:100%;height:272px;background-color:gray;text-align:center;color:white;padding:10px;border-radius:8px 8px 0px 0px" id="field2scorefalse">
+                        <span class="fas" style="text-align:center;margin-top:120px;font-size:25px">FIELD 2</span>
+                    </div>
+                </div>
+                <div class="fieldstatus field2s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px">
+                    <div style="padding:10px;border-radius:8px 8px 0px 0px" id="field3scoretrue" hidden>
+                        <span style="font-size:20px" class="fas">FIELD 3</span>
+                        <br />
+                        <span class="fas fa-user" style="font-size:20px"> <span class="field3team">EMPTY</span> <span style="background-color:darkgreen;color:white;padding:3px;border-radius:4px">2</span></span>
+                        <br />
+                        <div style="justify-content:space-around;margin-top:10px">
+                            <div style="display:inline-block">
+                                <span class="fas field3score" style="font-size:60px;padding:5px;color:white;background-color:black;border-radius:4px">000</span>
+                                <br />
+                                <span class="fas">POINTS</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f3bop">0</span> BOTTLE POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f3bap">0</span> BALL POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f3exp">0</span> EXTRA POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:darkred;color:white;padding:5px;border-radius:4px" id="f3pep">0</span> PENALTY POINTS</span><br />
+                        </div>
+                    </div>
+                    <div style="width:100%;height:272px;background-color:gray;text-align:center;color:white;padding:10px;border-radius:8px 8px 0px 0px" id="field3scorefalse">
+                        <span class="fas" style="text-align:center;margin-top:120px;font-size:25px">FIELD 3</span>
+                    </div>
+                </div>
+                <div class="fieldstatus field3s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+            <br />
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px">
+                    <div style="padding:10px;border-radius:8px 8px 0px 0px" id="field4scoretrue" hidden>
+                        <span style="font-size:20px" class="fas">FIELD 4</span>
+                        <br />
+                        <span class="fas fa-user" style="font-size:20px"> <span class="field4team">EMPTY</span> <span style="background-color:darkgreen;color:white;padding:3px;border-radius:4px">2</span></span>
+                        <br />
+                        <div style="justify-content:space-around;margin-top:10px">
+                            <div style="display:inline-block">
+                                <span class="fas field4score" style="font-size:60px;padding:5px;color:white;background-color:black;border-radius:4px">000</span>
+                                <br />
+                                <span class="fas">POINTS</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f4bop">0</span> BOTTLE POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f4bap">0</span> BALL POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f4exp">0</span> EXTRA POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:darkred;color:white;padding:5px;border-radius:4px" id="f4pep">0</span> PENALTY POINTS</span><br />
+                        </div>
+                    </div>
+                    <div style="width:100%;height:272px;background-color:gray;text-align:center;color:white;padding:10px;border-radius:8px 8px 0px 0px" id="field4scorefalse">
+                        <span class="fas" style="text-align:center;margin-top:120px;font-size:25px">FIELD 4</span>
+                    </div>
+
+                </div>
+                <div class="fieldstatus field4s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px">
+                    <div style="padding:10px;border-radius:8px 8px 0px 0px" id="field5scoretrue" hidden>
+                        <span style="font-size:20px" class="fas">FIELD 5</span>
+                        <br />
+                        <span class="fas fa-user" style="font-size:20px"> <span class="field5team">EMPTY</span> <span style="background-color:darkgreen;color:white;padding:3px;border-radius:4px">2</span></span>
+                        <br />
+                        <div style="justify-content:space-around;margin-top:10px">
+                            <div style="display:inline-block">
+                                <span class="fas field5score" style="font-size:60px;padding:5px;color:white;background-color:black;border-radius:4px">000</span>
+                                <br />
+                                <span class="fas">POINTS</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f5bop">0</span> BOTTLE POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f5bap">0</span> BALL POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f5exp">0</span> EXTRA POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:darkred;color:white;padding:5px;border-radius:4px" id="f5pep">0</span> PENALTY POINTS</span><br />
+                        </div>
+                    </div>
+                    <div style="width:100%;height:272px;background-color:gray;text-align:center;color:white;padding:10px;border-radius:8px 8px 0px 0px" id="field5scorefalse">
+                        <span class="fas" style="text-align:center;margin-top:120px;font-size:25px">FIELD 5</span>
+                    </div>
+                </div>
+                <div class="fieldstatus field5s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+            <div style="width:30%;display:inline-block;margin:15px">
+                <div style="background-color:white;border:1px solid #c2c2c2;border-radius:8px 8px 0px 0px">
+                    <div style="padding:10px;border-radius:8px 8px 0px 0px" id="field6scoretrue" hidden>
+                        <span style="font-size:20px" class="fas">FIELD 6</span>
+                        <br />
+                        <span class="fas fa-user" style="font-size:20px"> <span class="field6team">EMPTY</span> <span style="background-color:darkgreen;color:white;padding:3px;border-radius:4px">2</span></span>
+                        <br />
+                        <div style="justify-content:space-around;margin-top:10px">
+                            <div style="display:inline-block">
+                                <span class="fas field6score" style="font-size:60px;padding:5px;color:white;background-color:black;border-radius:4px">000</span>
+                                <br />
+                                <span class="fas">POINTS</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f6bop">0</span> BOTTLE POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f6bap">0</span> BALL POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:black;color:white;padding:5px;border-radius:4px" id="f6exp">0</span> EXTRA POINTS</span><br />
+                            <span class="fas" style="margin:6px;font-size:15px"><span style="background-color:darkred;color:white;padding:5px;border-radius:4px" id="f6pep">0</span> PENALTY POINTS</span><br />
+                        </div>
+                    </div>
+                    <div style="width:100%;height:272px;background-color:gray;text-align:center;color:white;padding:10px;border-radius:8px 8px 0px 0px" id="field6scorefalse">
+                        <span class="fas" style="text-align:center;margin-top:120px;font-size:25px">FIELD 6</span>
+                    </div>
+                </div>
+                <div class="fieldstatus field6s" style="background-color:gray;border:1px solid #c2c2c2;border-radius:0px 0px 8px 8px;padding:10px;color:white;font-weight:600;border-top:none"><span class="fas fa-moon"> DISABLED</span></div>
+            </div>
+        </div>
+        
+        <h5 style="text-align:center;font-family:'Lucida Console'" class="lastupdated">* All Fields Deinitialized</h5>
+    </div>
+    <div id="stage5" class="stage5">
+        <table style="width:100%;background-color:lightgray;border-radius:8px;padding-bottom:10px">
+            <tr>
+                <td style="text-align:left;padding-bottom:10px;width:34%;padding:20px">
+                    <img src="~/images/robofest_words_transparent.png" style="height:4vw" />
+                </td>
+                <td style="width:33%;padding:20px">
+                    <span style="font-family:Georgia, 'Times New Roman', Times, serif;text-shadow:2px 2px lightgray;font-size:2.5vw" class="message">Field Timeout</span>
+                </td>
+                <td style="text-align:right;width:33%;padding:20px">
+                    
+                </td>
+            </tr>
+        </table>
+        <div style="border-radius:4px;display:inline-block;margin-top:20vh;border-radius:8px">
+            <strong><span style="border-radius:8px 8px 0px 0px;font-family:Arial, Helvetica, sans-serif;background-color:black;padding:35px;color:white;margin-bottom:0px;margin-top:0px;font-size:200px" class="timerarea"><span id="minutes" class="timerarea minutes">0</span>:<span id="seconds" class="timerarea seconds">00</span></span></strong>
+
+
+            <div style="background-color:lightgray;text-align:center;border-radius:0px 0px 8px 8px">
+
+                <div class="statustimeout" style="background-color:gray;width:100%;height:40px;border-radius:0px 0px 8px 8px"></div>
+            </div>
+
+        </div>
+        <h3 style="font-family:'Lucida Console'"></h3>
+    </div>
+    <div id="stage6">
+        <div class="splashscreen" style="padding-top:27vh">
+            <img src="~/images/robofest_words_transparent.png" height="100" />
+            <h1 style="font-family:Georgia, 'Times New Roman', Times, serif;text-shadow:2px 2px lightgray">Scoring Online</h1>
+            <br />
+            <h3 style="font-family:Georgia, 'Times New Roman', Times, serif;text-shadow:2px 2px lightgray">We'll Be Right Back...</h3>
+            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+        </div>
+    </div>
+</div>
+<button onclick="openFullscreen();">Open Fullscreen</button>
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    var elem = document.documentElement;
+    function openFullscreen() {
+        var el = document.getElementById('fullscreenthis');
+
+        // use necessary prefixed versions
+        el.webkitRequestFullscreen();
+        el.mozRequestFullScreen();
+        el.msRequestFullscreen();
+
+        // finally the standard version
+        el.requestFullscreen();
+    }
+</script>
+<script>
+    function startTime() {
+      var today = new Date();
+      var h = today.getHours();
+      var m = today.getMinutes();
+      var s = today.getSeconds();
+      m = checkTime(m);
+      s = checkTime(s);
+        $(".currenttimeh").html(h);
+        $(".currenttimem").html(m);
+      
+      var t = setTimeout(startTime, 500);
+    }
+    function checkTime(i) {
+      if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+      return i;
+    }
+</script>
+<script>
+    var myIndex = 0;
+    $(document).ready(function () {
+        // Activate Carousel
+        //carousel();
+        $("#stage2").css("display", "none")
+        $("#stage3").css("display", "none")
+        $("#stage4").css("display", "none")
+        $("#stage1").css("display", "none")
+        $("#stage5").css("display", "none")
+    });
+    /*function carousel() {
+        var i;
+        var x = document.getElementsByClassName("item");
+        for (i = 0; i < x.length; i++) {
+            x[i].style.display = "none";
+        }
+        myIndex++;
+        if (myIndex > x.length) { myIndex = 1 }
+        x[myIndex - 1].style.display = "block";
+        setTimeout(carousel, 5000);
+    }*/
+</script>
+<script>
+    $(function () {
+        var timer = false;
+        var minutesc = 0;
+        var secondsc = 0;
+        var secondsview = "00";
+        var interval = false;
+        var allseconds = 0;
+        var part = 0;
+        var fieldarray = [0, 0, 0, 0, 0, 0];
+        var fieldconnected = [false, false, false, false, false, false]
+        var initsec = 0;
+        // Reference the auto-generated proxy for the hub.
+        var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+        // Create a function that the hub can call back to display messages.
+        chat.on("changeTeamScores", function (topten) {
+            // Add the message to the page.
+            //$('#' + teamnumber).text(score);
+            $(".topteams").empty();
+
+            $.each(topten, function (index, value) {
+                var markup = "<tr style='text-align:center;padding-left:5px'><th width='10%' style='text-align:left'>" + (index + 1) +
+                    "</th><th width='30%' style='text-align:center'>" + value.TeamNumberBranch + "-" + value.TeamNumberSpecific + "</th><th width='30%' style='text-align:center'>" +
+                    value.TeamName + "</th><th width='30%' style='text-align:center'>" +
+                    value.Average + "</th></tr>";
+                $(".topteams").append(markup);
+            });
+        });
+        chat.on("scorekeeperStatus", function (status) {
+            if (status == 0) {
+                $(".scorekeeperstatus").css("background-color", "gray");
+                $(".scorekeeperstatus").html("<span class='fas fa-clock'> BUSY</span>");
+                $("#scorekeeperbackground").css("background-color", "gray");
+            } else if (status == 1) {
+                $(".scorekeeperstatus").css("background-color", "darkorange");
+                $(".scorekeeperstatus").html("<span class='fas fa-flag'> UNDER REVIEW</span>");
+                $("#scorekeeperbackground").css("background-color", "darkorange");
+            } else if (status == 2) {
+                $(".scorekeeperstatus").css("background-color", "forestgreen");
+                $(".scorekeeperstatus").html("<span class='fas fa-thumbs-up'> OK</span>");
+                $("#scorekeeperbackground").css("background-color", "forestgreen");
+            }
+        });
+        chat.on("changeStage", function (stage) {
+            $("#stage" + 1).css("display", "none");
+            $("#stage" + 2).css("display", "none");
+            $("#stage" + 3).css("display", "none");
+            $("#stage" + 4).css("display", "none");
+            $("#stage" + 5).css("display", "none");
+            $("#stage" + 6).css("display", "none");
+            $("#stage" + stage).css("display", "");
+            if (stage == 4) {
+                var vid = document.getElementById("videotest");
+
+                vid.play();
+            } else {
+                var vid = document.getElementById("videotest");
+                vid.pause();
+            }
+        });
+        chat.on("changeGlobalTimer", function (minutes, seconds, message, status) {
+            $(".minutes").html(minutes);
+            if (seconds < 10) {
+                secondsview = "0" + seconds;
+            } else {
+                secondsview = seconds;
+            }
+            $(".seconds").html(secondsview);
+            $(".message").html(message);
+            if (status == 0) {
+                $(".status").css("border-bottom", "12px gray solid");
+                $(".status").css("border-top", "12px gray solid");
+                $(".statustopbar").css("border-left", "6px gray solid");
+                $(".statustimeout").css("background-color", "gray");
+                $(".status").removeClass("almostdone");
+                initsec = ((minutes * 60) + (seconds));
+                $(".statustimeout").css("width", "100%");
+            } else if (status == 1) {
+                $(".status").css("border-bottom", "12px green solid");
+                $(".status").css("border-top", "12px green solid");
+                $(".statustopbar").css("border-left", "6px green solid");
+                $(".statustimeout").css("background-color", "green");
+                if (((minutes * 60) + (seconds)) < (initsec / 4)) {
+                    $(".status").addClass("almostdone");
+                }
+                $(".statustimeout").css("width", ((((minutes * 60) + seconds) / initsec)*100)+"%")
+            } else if (status == 2 && seconds < 1 && minutes < 1) {
+                $(".status").css("border-bottom", "12px red solid");
+                $(".statustopbar").css("border-left", "6px red solid");
+                $(".status").css("border-top", "12px red solid");
+
+                $(".statustimeout").css("background-color", "red");
+                $(".statustimeout").css("width", "100%");
+                $(".status").removeClass("almostdone");
+            } else {
+                $(".status").css("border-bottom", "12px gray solid");
+                $(".status").css("border-top", "12px gray solid");
+                $(".statustopbar").css("border-left", "6px gray solid");
+                $(".statustimeout").css("background-color", "gray");
+                $(".status").removeClass("almostdone");
+            }
+        });
+        chat.on("initFieldView", function (field, status, score, team, connection, matchkeeper, data) {
+            
+            if (status == 0) {
+                $(".f" + field + "live").css("display","none")
+                changeScoreView(field, false);
+                $("#f" + field + "bop").html("0");
+                $("#f" + field + "bap").html("0");
+                $("#f" + field + "exp").html("0");
+                $("#f" + field + "pep").html("0");
+                if(field < 4){
+                    $(".field" + field + "s").css("background-color", "gray");
+                    $(".field" + field + "s").html("<span class='fas fa-moon'> DISABLED</span>")
+                    $(".field" + field + "ss").css("color", "gray");
+                    $(".field" + field + "team").html("EMPTY");
+                    $(".lastupdated").html("* Field " + field + " deinitialized!")
+                    $("#field" + field + "sa").css("background-color", "gray");
+                    $("#field" + field + "sa").html("&#10006;");
+                    $(".field" + field + "score").html("000");
+                    fieldarray[field - 1] = 0;
+                }else{
+                    $(".field" + field + "s").css("background-color", "gray");
+                    $(".field" + field + "s").html("<span class='fas fa-moon'> DISABLED</span>")
+                    $(".field" + field + "ss").css("color", "gray");
+                    $("#field" + field + "sa").css("background-color", "gray");
+                    $("#field" + field + "sa").html("&#10006;");
+                $(".field" + field + "team").html("EMPTY");
+                $(".lastupdated").html("* Field " + field + " deinitialized!")
+                $(".field" + field + "score").html("000");
+                    fieldarray[field - 1] = 0;
+                    if (fieldarray.includes(1) || fieldarray.includes(2) || fieldarray.includes(3)) {
+                        $("#nofieldsactive").css("display", "none")
+                    } else {
+                        $("#nofieldsactive").css("display", "inline")
+                    }
+    }
+
+            } else if (status == 1) {
+                $("#nofieldsactive").css("display", "none")
+                $(".f" + field + "live").css("display","inline-block")
+                changeScoreView(field, false);
+                $(".field" + field + "ss").css("color", "tomato");
+                $("#field" + field + "sa").css("background-color", "red");
+                $(".field" + field + "s").html("<span class='fas fa-times'> NOT READY</span>")
+                    $("#field" + field + "sa").html("&#10006;");
+                if(field <4){
+                    $(".field" + field + "s").css("background-color", "tomato");
+                    
+
+                    if (team != "") {
+                        $(".field" + field + "team").html(team);
+                    } else {
+                        $(".field" + field + "team").html("EMPTY");
+                    }
+
+                    $(".lastupdated").html("* Field " + field + " not ready!");
+                    fieldarray[field - 1] = 1;
+                }else{
+                    $(".field" + field + "s").css("background-color", "tomato");
+
+                    if (team != "") {
+                        $(".field" + field + "team").html(team);
+                    } else {
+                        $(".field" + field + "team").html("EMPTY");
+                    }
+
+                    $(".lastupdated").html("* Field " + field + " not ready!");
+                    fieldarray[field - 1] = 1;
+                }
+
+                
+            } else if (status == 2) {
+                $("#nofieldsactive").css("display", "none")
+                changeScoreView(field, false);
+                $(".f" + field + "live").css("display","inline-block")
+                $("#field" + field + "sa").css("background-color", "red");
+                $(".field" + field + "s").html("<span class='fas fa-check'> READY</span>")
+                    $("#field" + field + "sa").html("&#10006;");
+                if(field < 4){
+                    $(".field" + field + "s").css("background-color", "MediumSeaGreen");
+                    $(".field" + field + "ss").css("color", "MediumSeaGreen");
+                    $(".lastupdated").html("* Field " + field + " ready!");
+                    if (team != "") {
+                        $(".field" + field + "team").html(team);
+                    } else {
+                        $(".field" + field + "team").html("EMPTY");
+                    }
+                    fieldarray[field - 1] = 2;
+                }else{
+                    $(".field" + field + "s").css("background-color", "MediumSeaGreen");
+                    $(".field" + field + "ss").css("color", "MediumSeaGreen");
+                    $(".lastupdated").html("* Field " + field + " ready!");
+                    if (team != "") {
+                        $(".field" + field + "team").html(team);
+                    } else {
+                        $(".field" + field + "team").html("EMPTY");
+                    }
+                    fieldarray[field - 1] = 2;
+                }
+                
+            } else if (status == 3) {
+                $("#nofieldsactive").css("display", "none")
+                $(".f" + field + "live").css("display","inline-block")
+                changeScoreView(field, true);
+                var scoreview = score.toString();
+                var zerostoadd = 3 - scoreview.length;
+                if (zerostoadd == 2) {
+                    scoreview = "00" + scoreview;
+                } else if (zerostoadd == 1) {
+                    scoreview = "0" + scoreview;
+                }
+                $(".field" + field + "score").html(scoreview);
+                $("#field" + field + "sa").css("background-color", "green");
+                $("#field" + field + "sa").html("&#10004;");
+                $(".field" + field + "ss").css("color", "dodgerblue");
+                $(".field" + field + "s").html("<span class='fas fa-database'> SCORED</span>")
+                if(field < 4){
+                    $(".field" + field + "s").css("background-color", "dodgerblue");
+                    $(".lastupdated").html("* Field " + field + " has submitted final scores!");
+                    if (team != "") {
+                        $(".field" + field + "team").html(team);
+                    } else {
+                        $(".field" + field + "team").html("EMPTY");
+                    }
+                    fieldarray[field - 1] = 3;
+                }else{
+                    $(".field" + field + "s").css("background-color", "dodgerblue");
+                    $(".lastupdated").html("* Field " + field + " has submitted final scores!");
+                    if (team != "") {
+                        $(".field" + field + "team").html(team);
+                    } else {
+                        $(".field" + field + "team").html("EMPTY");
+                    }
+                    fieldarray[field - 1] = 3;
+                }
+                
+            } else if (status == 5) {
+                if (fieldarray[field - 1] != 0) {
+                    var scoreview = score.toString();
+                    var zerostoadd = 3 - scoreview.length;
+                    if (zerostoadd == 2) {
+                        scoreview = "00" + scoreview;
+                    } else if (zerostoadd == 1) {
+                        scoreview = "0" + scoreview;
+                    }
+                    $(".field" + field + "score").html(scoreview);
+                    $(".field" + field + "scorel").html(score);
+                    var allstrings = data.split("^")
+                    var bottles = allstrings[0].split("/")
+                    var balls = allstrings[1].split("/")
+                    var general = allstrings[2].split("/")
+                    var penalty = allstrings[3].split("/")
+                    if (general[0] > 0) {
+                        $("#f" + field + "enc").css("background-color", "green");
+                        $("#f" + field + "").addClass("rotationspin")
+                    } else {
+                        $("#f" + field + "enc").css("background-color","gray");
+                    }
+                    if (penalty[0] < 0) {
+                        $("#f" + field + "frc").css("background-color", "red");
+                        $("#f" + field + "fr").addClass("rotationspin")
+                    } else {
+                        $("#f" + field + "frc").css("background-color", "gray");
+                        $("#f" + field + "fr").removeClass("rotationspin")
+                    }
+                    if (balls[2] < 0) {
+                        $("#f" + field + "ibc").css("background-color", "red");
+                        $("#f" + field + "ib").html(balls[2])
+                    } else {
+                        $("#f" + field + "ibc").css("background-color", "gray");
+                        $("#f" + field + "ib").html("0")
+                    }
+                    
+                    var ob = balls[1] / 18;
+                    var wb = balls[0] / 15;
+                    var ib = balls[2] / -3;
+                    $("#f" + field + "ob").html("<strong>" + ob + "</strong>");
+                    $("#f" + field + "wb").html("<strong>" + wb + "</strong>");
+                    $("#f" + field + "ib").html("<strong>" + ib + "</strong>");
+                    $("#f" + field + "bop").html(parseInt(bottles[0]) + parseInt(bottles[1]) + parseInt(bottles[2]) + parseInt(bottles[3]) + parseInt(bottles[4]))
+                    $("#f" + field + "bap").html(parseInt(balls[0]) + parseInt(balls[1]) + parseInt(balls[2]))
+                    $("#f" + field + "exp").html(parseInt(general[0]) + parseInt(general[0]))
+                    $("#f" + field + "pep").html(parseInt(penalty[0]))
+                }
+                if (team != "") {
+                    $(".field" + field + "team").html(team);
+                } else {
+                    $(".field" + field + "team").html("EMPTY");
+                }
+            
+            }
+            if (!(fieldarray.includes(2) || fieldarray.includes(1))) {
+                if (!fieldarray.includes(3)) {
+                    $("#judgestatusbackground").css("background-color", "gray");
+                    $(".judgestatus").css("background-color", "gray");
+                    $(".judgestatus").html("<span class='fas fa-question'> NO FIELDS</span>");
+                } else {
+                    $("#judgestatusbackground").css("background-color", "green");
+                    $(".judgestatus").css("background-color", "green");
+                    $(".judgestatus").html("<span class='fas fa-thumbs-up'> ALL SCORED</span>");
+                }
+            } else {
+                $("#judgestatusbackground").css("background-color", "darkred");
+                $(".judgestatus").css("background-color", "darkred");
+                $(".judgestatus").html("<span class='fas fa-edit'> SCORING</span>");
+            }
+            if (fieldarray.includes(1) == true) {
+                $("#gamestatus").html("Not All Ready!");
+            } else {
+                $("#gamestatus").html("");
+            }
+            if (status == 0) {
+                $(".field" + field + "connection").html("Off");
+                $(".field" + field + "connection").css("background-color", "lightgray");
+            } else {
+                if (connection == true) {
+                    $(".field" + field + "connection").html("LIVE");
+                    $(".field" + field + "connection").css("background-color", "red");
+                }
+                else {
+                    $(".field" + field + "connection").html("Paused");
+                    $(".field" + field + "connection").css("background-color", "gray");
+                }
+
+            }
+        });
+        function changeScoreView(field, visible) {
+            $("#field" + field + "scoretrue").attr("hidden", !visible);
+            $("#field" + field + "scorefalse").attr("hidden", visible);
+        }
+        chat.on("updateLive", function (field) {
+            if (field < 7 && field > 0) {
+                fieldconnected[field - 1] = true;
+            }
+        });
+        // Start the connection.
+        chat.start().then(function () {
+            $(document).ready(function () {
+                chat.invoke("getFieldData");
+            });
+            function checkPongs() {
+                if (fieldconnected[0] == true) {
+                    if (fieldarray[0] != 0 && fieldarray != 3) {
+                        $("#field1lc").html("C");
+                    }
+                } else {
+                    $("#field1lc").html("NC");
+                }
+                if (fieldconnected[1] == true) {
+                    if (fieldarray[1] != 0 && fieldarray != 3) {
+                        $("#field2lc").html("C");
+                    }
+                } else {
+                    $("#field2lc").html("NC");
+                }
+                if (fieldconnected[2] == true) {
+                    if (fieldarray[2] != 0 && fieldarray != 3) {
+                        $("#field3lc").html("C");
+                    }
+                } else {
+                    $("#field3lc").html("NC");
+                }
+                if (fieldconnected[3] == true) {
+                    if (fieldarray[3] != 0 && fieldarray != 3) {
+                        $("#field4lc").html("C");
+                    }
+                } else {
+                    $("#field4lc").html("NC");
+                }
+                if (fieldconnected[4] == true) {
+                    if (fieldarray[4] != 0 && fieldarray != 3) {
+                        $("#field5lc").html("C");
+                    }
+                } else {
+                    $("#field5lc").html("NC");
+                }
+                if (fieldconnected[5] == true) {
+                    if (fieldarray[5] != 0 && fieldarray != 3) {
+                        $("#field6lc").html("C");
+                    }
+                } else {
+                    $("#field6lc").html("NC");
+                }
+                fieldconnected = [false, false, false, false, false, false]
+                $("#ping").html("2");
+                setTimeout(pingTeams, 1000);
+            }
+            function pingTeams() {
+                $("#ping").html("1");
+                chat.invoke("pingField", 7);
+                setTimeout(checkPongs, 5000);
+
+            }
+            setTimeout(pingTeams, 1000);
+        });
+
+
+
+
+    });
+
+
+</script>

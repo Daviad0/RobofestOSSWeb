@@ -1,0 +1,89 @@
+﻿@model RobofestWTE.Models.GamePageModel
+
+@{
+    ViewBag.Title = "Index";
+}
+<style>
+    table{
+        border:0px;
+        border-collapse:collapse;
+        width:100%
+    }
+</style>
+<body>
+    <h2 style="text-align:center">Competition Index</h2>
+    <div width="100%" style="background-color:lightgray;border:1px lightgray solid;border-radius:10px;margin:10px">
+        <table style="text-align:center;font-size:25px;margin:10px">
+            <tr>
+                <td width="33%"></td>
+                <td width="33%" style="padding-bottom:10px">
+                    @Html.DisplayFor(model => model.Name)
+                </td>
+                <td width="33%"></td>
+            </tr>
+
+            <tr style="font-size:20px">
+                <td width="33%">
+                    GAME #@Html.DisplayFor(model => model.GameID)
+                </td>
+                <td width="33%">
+                    @Html.DisplayFor(model => model.Desc)
+                </td>
+                <td width="33%">
+                    @{ 
+                        int competitions = Model.Competitions.Count;
+                    }
+                    @competitions Competitions
+                </td>
+            </tr>
+        </table>
+    </div>
+    <h3 style="text-align:center">All Competitions:</h3>
+    <table>
+        <tr style="font-size:20px;border-bottom:5px black solid">
+            <th style="background-color:#ffffff;width:1%;padding-right:5px">
+                ID 
+            </th>
+            <th style="background-color:#ffffff">
+                Location
+            </th>
+            <th style="background-color:#ffffff">
+                Date
+            </th>
+            <th>
+                Extra
+            </th>
+            <th>
+                # of Teams
+            </th>
+            <th style="background-color:#ffffff">
+                Options
+            </th>
+        </tr>
+        @foreach (var item in Model.Competitions.OrderByDescending(a => a.Date))
+        {
+        <tr>
+            <td style="background-color:#ffffff;width:1%">
+                @item.CompID
+            </td>
+            <td>
+                @item.Location
+            </td>
+            <td>
+                @item.Date
+            </td>
+            <td>
+                @item.ExtraData
+            </td>
+            <td>
+                @item.TeamCount
+            </td>
+            <td>
+                @Html.ActionLink("Details", "Competition", new { id = item.CompID })
+            </td>
+        </tr>
+        }
+
+    </table>
+   
+</body>

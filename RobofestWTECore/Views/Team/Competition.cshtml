@@ -1,0 +1,462 @@
+﻿@model RobofestWTE.Models.CompetitionPageModel
+@using RobofestWTECore.Models
+
+@{
+    ViewBag.Title = "Index";
+}
+<style>
+    table {
+        border: 0px;
+        border-collapse: collapse;
+        width: 100%
+    }
+
+    #outer {
+        width: 100%;
+        text-align: center;
+    }
+
+    .inner {
+        display: inline-block;
+    }
+</style>
+<head>
+    <script src="~/Scripts/jquery-3.3.1.js" integrity="" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+<body>
+    <br />
+    <div id="outer">
+        <div class="inner"><a href="@Url.Action("GAME", new { id = Model.GameID })" style="display:inline;padding-right:10px"><input type="button" class="btn btn-warning" style="width:30vw;height:7vw;font-size:2vw;display:inline-block;font-family:Calibri" value="Back to GAME" /></a></div>
+    </div>
+    <h2 style="text-align:center">Team Index</h2>
+    <div width="100%" style="background-color:lightgray;border:1px lightgray solid;border-radius:10px;margin:10px">
+        <table style="text-align:center;font-size:25px;margin:10px">
+            <tr>
+                <td width="33%"></td>
+                <td width="33%" style="padding-bottom:10px">
+                    @Html.DisplayFor(model => model.Location)
+                </td>
+                <td width="33%"></td>
+            </tr>
+
+            <tr style="font-size:20px">
+                <td width="33%">
+                    Competition #@Html.DisplayFor(model => model.CompID)
+                </td>
+                <td width="33%">
+                    On @Html.DisplayFor(model => model.Date)
+                </td>
+                <td width="33%">
+                    Extra:@Html.DisplayFor(model => model.ExtraData)
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <h3 style="text-align:center">All Participating Teams:</h3>
+    <h5 style="text-align:center">@Html.ActionLink("Create Team", "TeamCreate")</h5>
+    <table>
+        <tr style="font-size:20px;border-bottom:5px black solid">
+            <th style="background-color:#ffffff;width:1%;padding-right:5px">
+                Rank
+            </th>
+            <th style="background-color:#ffffff">
+                Team #
+            </th>
+            <th style="background-color:#ffffff">
+                Team Name
+            </th>
+            <th style="background-color:#ffd1ba">
+                R1 Score
+            </th>
+            <th style="background-color:#ffd1ba">
+                R1 Time
+            </th>
+            <th style="background-color:#fffaba">
+                R2 Score
+            </th>
+            <th style="background-color:#fffaba">
+                R2 Time
+            </th>
+            <th style="background-color:#ffffff">
+                Average
+            </th>
+            <th>
+                Options
+            </th>
+        </tr>
+        <tbody class="scoreboard">
+            @{
+                int i = 0;
+            }
+            @foreach (var item in Model.Teams.OrderByDescending(a => a.RoundAverage))
+            {
+                i++;
+                <tr>
+                    <td style="background-color:#ffffff;width:1%">
+                        @i
+                    </td>
+                    <td>
+                        @item.TeamNumberBranch-@item.TeamNumberSpecific
+                    </td>
+                    <td>
+                        @item.TeamName
+                    </td>
+                    <td style="background-color:#ffd1ba">
+                        @item.Round1Score
+                    </td>
+                    <td style="background-color:#ffd1ba">
+                        @item.Round1Time
+                    </td>
+                    <td style="background-color:#fffaba">
+                        @item.Round2Score
+                    </td>
+                    <td style="background-color:#fffaba">
+                        @item.Round2Time
+                    </td>
+                    <td>
+                        @item.RoundAverage
+                    </td>
+                    <td>
+                        <a href="../../Team/Details/@item.TeamID" class="Details" id="@item.TeamID">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+    <br />
+    <h3 style="text-align:center">Preferred Matches:</h3>
+    <table>
+        <caption style="text-align:center">
+            These are unplayed teams for round <span id="roundpreferred">1</span>!
+        </caption>
+        <tr>
+            <th>Field 1</th>
+            <th>Field 2</th>
+            <th>Field 3</th>
+            <th>Field 4</th>
+            <th>Field 5</th>
+            <th>Field 6</th>
+        </tr>
+        <tr>
+            <td>Team <input type="button" id="field1preferred" value="@Model.FieldPreferred[0]" class="@Model.FieldPreferred[0] btn btn-default gotopage" /></td>
+            <td>Team <input type="button" id="field2preferred" value="@Model.FieldPreferred[1]" class="@Model.FieldPreferred[1] btn btn-default gotopage" /></td>
+            <td>Team <input type="button" id="field3preferred" value="@Model.FieldPreferred[2]" class="@Model.FieldPreferred[2] btn btn-default gotopage" /></td>
+            <td>Team <input type="button" id="field4preferred" value="@Model.FieldPreferred[3]" class="@Model.FieldPreferred[3] btn btn-default gotopage" /></td>
+            <td>Team <input type="button" id="field5preferred" value="@Model.FieldPreferred[4]" class="@Model.FieldPreferred[4] btn btn-default gotopage" /></td>
+            <td>Team <input type="button" id="field6preferred" value="@Model.FieldPreferred[5]" class="@Model.FieldPreferred[5] btn btn-default gotopage" /></td>
+        </tr>
+    </table>
+    <br />
+    <h3 style="text-align:center">Schedule:</h3>
+    <table>
+        <tr style="font-size:20px;border-bottom:5px black solid">
+            <th style="background-color:#ffffff;width:1%;padding-right:5px">
+                ID
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                Time
+            </th>
+            <th>
+                Game Matches?
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                -
+            </th>
+        </tr>
+        @foreach (var item in Model.ScheduleDatas.OrderBy(a => a.ScheduleID))
+        {
+            <tr>
+                <td style="background-color:#ffffff;width:1%">
+                    @item.ScheduleID
+                </td>
+                <td>
+                    @item.Name
+                </td>
+                <td>
+                    @item.Time
+                </td>
+                <td>
+                    @item.GameMatch
+                </td>
+                <td>
+                    @item.Description
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+        }
+
+    </table>
+    <br />
+
+
+</body>
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    $(function () {
+        var timer = false;
+        var minutesc = 0;
+        var secondsc = 0;
+        var secondsview = "00";
+        var interval = false;
+        var part = 0;
+        var minutess = 0;
+        var secondss = 0;
+        var message = "";
+        var validmatches = ["@Model.validmatches[0]","@Model.validmatches[1]","@Model.validmatches[2]","@Model.validmatches[3]","@Model.validmatches[4]","@Model.validmatches[5]"]
+        // Reference the auto-generated proxy for the hub.
+        $(document).ready(function () {
+                $("#field1preferred").attr("disabled", true)
+            $("#field2preferred").attr("disabled", true)
+            $("#field3preferred").attr("disabled", true)
+            $("#field4preferred").attr("disabled", true)
+            $("#field5preferred").attr("disabled", true)
+            $("#field6preferred").attr("disabled", true)
+            $("#field1preferred").css("background-color", "#fcc65b")
+            $("#field2preferred").css("background-color", "#fcc65b")
+            $("#field3preferred").css("background-color", "#fcc65b")
+            $("#field4preferred").css("background-color", "#fcc65b")
+            $("#field5preferred").css("background-color", "#fcc65b")
+            $("#field6preferred").css("background-color", "#fcc65b")
+        if (validmatches[0] == "True") {
+                $("#field1preferred").attr("disabled", false)
+                $("#field1preferred").css("background-color", "#ffffff")
+                
+            }
+            else if ($("#field1preferred").val() == "EMPTY") {
+                $("#field1preferred").css("background-color", "#fc685b")
+            }
+            if (validmatches[1] == "True") {
+                $("#field2preferred").attr("disabled", false)
+                $("#field2preferred").css("background-color", "#ffffff")
+            }
+            else if ($("#field2preferred").val() == "EMPTY") {
+                $("#field2preferred").css("background-color", "#fc685b")
+            }
+            if (validmatches[2] == "True") {
+                $("#field3preferred").attr("disabled", false)
+                $("#field3preferred").css("background-color", "#ffffff")
+            }
+            else if ($("#field3preferred").val() == "EMPTY") {
+                $("#field3preferred").css("background-color", "#fc685b")
+            }
+            if (validmatches[3] == "True") {
+                $("#field4preferred").attr("disabled", false)
+                $("#field4preferred").css("background-color", "#ffffff")
+            }
+            else if ($("#field4preferred").val() == "EMPTY") {
+                $("#field4preferred").css("background-color", "#fc685b")
+            }
+            if (validmatches[4] == "True") {
+                $("#field5preferred").attr("disabled", false)
+                $("#field5preferred").css("background-color", "#ffffff")
+            }
+            else if ($("#field5preferred").val() == "EMPTY") {
+                $("#field5preferred").css("background-color", "#fc685b")
+            }
+            if (validmatches[5] == "True") {
+                $("#field6preferred").attr("disabled", false)
+                $("#field6preferred").css("background-color", "#ffffff")
+            }
+            else if ($("#field6preferred").val() == "EMPTY") {
+                $("#field6preferred").css("background-color", "#fc685b")
+            }
+            });
+        
+        var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+        // Create a function that the hub can call back to display messages.
+        chat.on("changeScoreboard", function (scoresheet) {
+            // Add the message to the page.
+            //$('#' + teamnumber).text(score);
+            $(".scoreboard").empty();
+            var team = 0;
+            $.each(scoresheet, function (index, value) {
+                var teamid = value.TeamID;
+                var markup = "<tr><td style='background-color:#ffffff;width:1%'>" + (index + 1) + "</td><td>" + value.TeamNumber + "</td><td>" + value.TeamName + "</td><td style='background-color:#ffd1ba'>" + value.Round1Score + "</td><td style='background-color:#ffd1ba'>" + value.Round1Time + "</td><td style='background-color:#fffaba'>" + value.Round2Score + "</td><td style='background-color:#fffaba'>" + value.Round2Time + "</td><td>" + value.RoundAverage + "</td><td>" + "<a href='../../Team/Details/" + value.TeamID + "' class='Details' id='" + value.TeamID + "'>Details</a> | <a href='../../Team/TeamEdit/" + value.TeamID + "' class='Details'>Edit</a>" + "</td></tr>";
+
+
+
+                $(".scoreboard").append(markup);
+            });
+        });
+        chat.on("validateSelections", function (m1v, m2v, m3v, m4v, m5v, m6v) {
+            if (m1v == true) {
+                $("#field1preferred").attr("disabled", false)
+                $("#field1preferred").css("background-color", "#ffffff")
+                
+            }
+            else if ($("#field1preferred").val() == "EMPTY") {
+                $("#field1preferred").css("background-color", "#fc685b")
+            }
+            if (m2v == true) {
+                $("#field2preferred").attr("disabled", false)
+                $("#field2preferred").css("background-color", "#ffffff")
+            }
+            else if ($("#field2preferred").val() == "EMPTY") {
+                $("#field2preferred").css("background-color", "#fc685b")
+            }
+            if (m3v == true) {
+                $("#field3preferred").attr("disabled", false)
+                $("#field3preferred").css("background-color", "#ffffff")
+            }
+            else if ($("#field3preferred").val() == "EMPTY") {
+                $("#field3preferred").css("background-color", "#fc685b")
+            }
+            if (m4v == true) {
+                $("#field4preferred").attr("disabled", false)
+                $("#field4preferred").css("background-color", "#ffffff")
+            }
+            else if ($("#field4preferred").val() == "EMPTY") {
+                $("#field4preferred").css("background-color", "#fc685b")
+            }
+            if (m5v == true) {
+                $("#field5preferred").attr("disabled", false)
+                $("#field5preferred").css("background-color", "#ffffff")
+            }
+            else if ($("#field5preferred").val() == "EMPTY") {
+                $("#field5preferred").css("background-color", "#fc685b")
+            }
+            if (m6v == true) {
+                $("#field6preferred").attr("disabled", false)
+                $("#field6preferred").css("background-color", "#ffffff")
+            }
+            else if ($("#field6preferred").val() == "EMPTY") {
+                $("#field6preferred").css("background-color", "#fc685b")
+            }
+        });
+        chat.on("availableSelections", function (teamid1, teamid2, teamid3, teamid4, teamid5, teamid6, round) {
+            $("#field1preferred").removeClass();
+            $("#field2preferred").removeClass();
+            $("#field3preferred").removeClass();
+            $("#field4preferred").removeClass();
+            $("#field5preferred").removeClass();
+            $("#field6preferred").removeClass();
+            $("#field1preferred").attr("disabled", true)
+            $("#field2preferred").attr("disabled", true)
+            $("#field3preferred").attr("disabled", true)
+            $("#field4preferred").attr("disabled", true)
+            $("#field5preferred").attr("disabled", true)
+            $("#field6preferred").attr("disabled", true)
+            $("#field1preferred").css("background-color", "#fcc65b")
+            $("#field2preferred").css("background-color", "#fcc65b")
+            $("#field3preferred").css("background-color", "#fcc65b")
+            $("#field4preferred").css("background-color", "#fcc65b")
+            $("#field5preferred").css("background-color", "#fcc65b")
+            $("#field6preferred").css("background-color", "#fcc65b")
+            $("#field1preferred").val(teamid1);
+            $("#field1preferred").addClass(teamid1)
+            $("#field2preferred").val(teamid2);
+            $("#field2preferred").addClass(teamid2);
+            $("#field3preferred").val(teamid3);
+            $("#field3preferred").addClass(teamid3)
+            $("#field4preferred").val(teamid4);
+            $("#field4preferred").addClass(teamid4)
+            $("#field5preferred").val(teamid5);
+            $("#field5preferred").addClass(teamid5)
+            $("#field6preferred").val(teamid6);
+            $("#field6preferred").addClass(teamid6)
+            $("#field1preferred").addClass("btn btn-default");
+            $("#field2preferred").addClass("btn btn-default");
+            $("#field3preferred").addClass("btn btn-default");
+            $("#field4preferred").addClass("btn btn-default");
+            $("#field5preferred").addClass("btn btn-default");
+            $("#field6preferred").addClass("btn btn-default");
+            $("#roundpreferred").html(round);
+            
+        });
+        chat.on("changeGlobalTimer", function (minutes, seconds, message, status) {
+            $("#minutesv").html(minutes);
+            if (seconds < 10) {
+                secondsview = "0" + seconds;
+            } else {
+                secondsview = seconds;
+            }
+            $("#secondsv").html(secondsview);
+            $("#messagev").html(message);
+            minutesc = minutes;
+            secondsc = seconds;
+            abort = true;
+            timer = false;
+            part = 0;
+            $(".timerstatus").css("color", "black");
+
+        });
+        chat.on("sendJudgesToPage", function (teamidsent) {
+            window.location.href = ('/Team/RoundCreate/' + teamidsent);
+        });
+
+        // Start the connection.
+        chat.start().then(function () {
+            $(".gotopage").click(function () {
+                var teamidtouse = $(this).val();
+                chat.invoke("goToRC", teamidtouse)
+            });
+            function checkPongs() {
+                if (fieldconnected[0] == true) {
+                    if (fieldarray[0] != 0 && fieldarray != 3) {
+                        $("#field1lc").html("C");
+                    }
+                } else {
+                    $("#field1lc").html("NC");
+                }
+                if (fieldconnected[1] == true) {
+                    if (fieldarray[1] != 0 && fieldarray != 3) {
+                        $("#field2lc").html("C");
+                    }
+                } else {
+                    $("#field2lc").html("NC");
+                }
+                if (fieldconnected[2] == true) {
+                    if (fieldarray[2] != 0 && fieldarray != 3) {
+                        $("#field3lc").html("C");
+                    }
+                } else {
+                    $("#field3lc").html("NC");
+                }
+                if (fieldconnected[3] == true) {
+                    if (fieldarray[3] != 0 && fieldarray != 3) {
+                        $("#field4lc").html("C");
+                    }
+                } else {
+                    $("#field4lc").html("NC");
+                }
+                if (fieldconnected[4] == true) {
+                    if (fieldarray[4] != 0 && fieldarray != 3) {
+                        $("#field5lc").html("C");
+                    }
+                } else {
+                    $("#field5lc").html("NC");
+                }
+                if (fieldconnected[5] == true) {
+                    if (fieldarray[5] != 0 && fieldarray != 3) {
+                        $("#field6lc").html("C");
+                    }
+                } else {
+                    $("#field6lc").html("NC");
+                }
+                fieldconnected = [false, false, false, false, false, false]
+                $("#ping").html("2");
+                setTimeout(pingTeams, 1000);
+            }
+            function pingTeams() {
+                $("#ping").html("1");
+                chat.invoke("pingField", 7);
+                setTimeout(checkPongs, 5000);
+
+            }
+            setTimeout(pingTeams, 1000);
+        });
+    });
+</script>

@@ -1,0 +1,33 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron" style="text-align:center">
+    <h1>Welcome, @User.Identity.Name!</h1>
+    <h4>Thank you for volunteering for Robofest!</h4>
+</div>
+@if (User.IsInRole("Judge")){
+    <div>
+        <span style="background-color:blue;color:white;padding:10px;font-size:20px">Judge</span>
+        <br />
+        <a href="@Url.Action("Competition", "Team", new { id = 1 })">Go to the Scoresheet</a>
+        <br />
+        <a href="@Url.Action("RoundCreateBlank", "Team")">Create a Blank Round</a>
+    </div>
+}
+@if (User.IsInRole("Judge")){
+    <div>
+        <span style="background-color:cornflowerblue;color:white;padding:10px;font-size:20px">Field Staff</span>
+        <br />
+        <a href="@Url.Action("MatchKeeper", "Team", new { id = 1 })">Field Management</a>
+        <br />
+        <a href="@Url.Action("Competition", "Team", new { id = 1 })">Go to the Scoresheet</a>
+    </div>
+}
+@if (User.IsInRole("Admin")){
+    <div>
+        <span style="background-color:deeppink;color:white;padding:10px;font-size:20px">Administrator</span>
+        <br />
+        <a href="@Url.Action("Competition", "Team", new { id = 1 })">Manage Volunteers</a>
+    </div>
+}

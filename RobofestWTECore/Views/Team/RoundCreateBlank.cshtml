@@ -1,0 +1,658 @@
+﻿@model RobofestWTE.Models.RoundEntry
+
+@{
+    ViewBag.Title = "Create";
+}
+<style>
+    .btn-group {
+        display: flex;
+    }
+
+    .btn {
+        flex: 1
+    }
+
+    btn-default: {
+        background-color: gray
+    }
+
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #ecbb06;
+        color: white;
+        text-align: center;
+    }
+
+    .big {
+        font-size: 1.2em;
+        border: none;
+        border-radius: 4px;
+    }
+
+    .createforms {
+        border: none;
+        border-bottom: 2px solid gray;
+        padding-left: 2px;
+        transition: 0.3s;
+        border-radius: 4px;
+    }
+
+        .createforms:hover {
+            background-color: #ededed;
+            padding-left: 5px;
+        }
+
+        .createforms:focus {
+            border-bottom: 2px solid red;
+            background-color: #ededed;
+            padding-left: 5px;
+        }
+
+        .createforms:disabled, .createforms:read-only {
+            cursor: not-allowed;
+            padding-left: 2px;
+            transition: 0.3s;
+        }
+
+            .createforms:disabled:hover, .createforms:disabled:active {
+                cursor: not-allowed;
+                background-color: red;
+                padding-left: 5px;
+                opacity: 0.6;
+            }
+</style>
+@{var timeStamp = DateTime.UtcNow; }
+<h2>Create</h2>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal" style="text-align:center">
+        <h4>Round</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    </div>
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.TeamID, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.TeamID, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.TeamID, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.TimeStamp, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.TimeStamp, new { Value = timeStamp, @class = "createforms", @readonly = "readonly" })
+    </div>
+    @Html.ValidationMessageFor(model => model.TimeStamp, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Score, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.Score, new { Value = 0, id = "teamID", @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Score, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Time, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.Time, new { Value = 0, @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Time, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Round, htmlAttributes: new { Value = "Use for Average", @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.Round, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Round, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Data, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.Data, new { Value = "0/0/0/0/0\\0/0/0\\0/0\\0/0", id = "data", @class = "createforms", @readonly = "readonly" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Data, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Rerun, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.CheckBoxFor(model => model.Rerun, new { @class = "checkthis" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Rerun, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Usable, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.CheckBoxFor(model => model.Usable, new { @class = "checkthis" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Usable, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.JudgeConfirmNotes, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.JudgeConfirmNotes, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.JudgeConfirmNotes, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.StudentInitials, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.StudentInitials, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Field, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Field, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.Field, new { id = "fieldn", @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.StudentInitials, "", new { @class = "text-danger" })
+    <div style="text-align:center">
+        <input type="button" value="Lock In" id="lockin" /><input type="button" value="Ready" id="readystatus" /><input type="button" value="Not Ready" id="notreadystatus" />
+    </div>
+    <br />
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+        <input type="submit" id="create" value="Create" class="btn btn-default" />
+    </div>
+}
+
+<script src="~/Scripts/jquery-3.3.1.js" integrity="" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<div style="background-color:lightgray;border-radius:6px;border:10px solid lightgray;z-index:-1">
+    <div style="text-align:center">
+        <div class="status" style="border-bottom:black 6px solid;border-radius:8px;display:inline-block">
+            <h1 style="font-family:'Lucida Console';margin-bottom:0px" class="timerarea"><span id="minutes" class="timerarea">0</span>:<span id="seconds" class="timerarea">00</span></h1>
+        </div>
+        <h3 style="font-family:'Lucida Console'"><span id="message"></span></h3>
+
+        <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+            @Html.LabelFor(model => model.Field, htmlAttributes: new { @class = "control-label col-md-2" })@Html.ValidationMessageFor(model => model.Field, "", new { @class = "text-danger" })
+            @Html.TextBoxFor(model => model.Field, new { id = "fieldn", @class = "createforms" })
+        </div>
+        <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+            <span class="control-label col-md-2"><strong>Team Number (Optional)</strong></span>
+            <input id="teamnumber" class="createforms" type="text" maxlength="7" readonly="readonly" />
+        </div>
+        <input type="button" value="Lock In" id="lockin" style="margin-right:5px" /><input type="button" value="Ready" id="readystatus" style="margin-right:5px" /><input type="button" value="Not Ready" id="notreadystatus" />
+        <input type="button" id="disablescoreupdate" value="Disable Live" style="margin-right:5px" /><input type="button" id="enablescoreupdate" value="Enable Live" />
+        <h4 id="currentscorestatus">Score Updating Enabled!</h4>
+    </div>
+</div>
+<br />
+}
+<h2 style="text-align:center">Scoresheet</h2>
+<h4 style="text-align:center">(!) This area automatically fills in the "Score" field for convience every time you change the scoresheet (!)</h4>
+<h5 style="text-align:center">Balls into Hole Slot: <span id="balls">0</span> Ball(s)</h5>
+<h5 id="bvalidation" style="text-align:center;color:darkred"></h5>
+<h5 id="ivalidation" style="text-align:center;color:darkred"></h5>
+<br />
+<div style="background-color:lightgray;border-radius:6px;border:10px solid lightgray;z-index:-1">
+    <table style="border:none;width:100%;text-align:center">
+        <tr style="text-align:center">
+            <th>Bottle #1 (Left)</th>
+            <th>Bottle #2</th>
+            <th>Bottle #3</th>
+            <th>Bottle #4 (Right)</th>
+            <th>Bottle #5 (Middle)</th>
+        </tr>
+        <tr>
+            <td>
+                <select onchange="OnChangeB1(this.value)" id="score" class="bottle1 custom-dropdown big">
+                    <option name="bot1" id="bot" value="0">In Circle (0)</option>
+                    <option name="bot1" id="bot" value="3">Moved Out (3)</option>
+                    <option name="bot1" id="bot" value="11">Knocked Over (11)</option>
+                </select>
+            </td>
+            <td>
+                <select onchange="OnChangeB2(this.value)" id="score" class="bottle2 custom-dropdown big">
+                    <option name="bot2" id="bot" value="0">In Circle (0)</option>
+                    <option name="bot2" id="bot" value="5">Moved Out (5)</option>
+                    <option name="bot2" id="bot" value="13">Knocked Over (13)</option>
+                </select>
+            </td>
+            <td>
+                <select onchange="OnChangeB3(this.value)" id="score" class="bottle3 custom-dropdown big">
+                    <option name="bot3" id="bot" value="0">In Circle (0)</option>
+                    <option name="bot3" id="bot" value="5">Moved Out (5)</option>
+                    <option name="bot3" id="bot" value="13">Knocked Over (13)</option>
+                </select>
+            </td>
+            <td>
+                <select onchange="OnChangeB4(this.value)" id="score" class="bottle4 custom-dropdown big">
+                    <option name="bot4" id="bot" value="0">In Circle (0)</option>
+                    <option name="bot4" id="bot" value="3">Moved Out (3)</option>
+                    <option name="bot4" id="bot" value="11">Knocked Over (11)</option>
+                </select>
+            </td>
+            <td>
+                <select onchange="OnChangeB5(this.value)" id="score" class="bottle5 custom-dropdown big">
+                    <option name="bot5" id="bot" value="0">In Circle (0)</option>
+                    <option name="bot5" id="bot" value="-2">Moved Out (-2)</option>
+                    <option name="bot5" id="bot" value="-2">Knocked Over (-2)</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+
+</div>
+<br />
+<div style="background-color:lightgray;border-radius:6px;border:10px solid lightgray;z-index:-1">
+    <table style="border:none;width:100%;text-align:center">
+        <tr style="text-align:center">
+            <th>While Golf Balls</th>
+            <th>Orange Golf Balls</th>
+            <th>Invalid Balls</th>
+            <th>Remaining Balls</th>
+        </tr>
+        <tr>
+            <td>
+                <select onchange="OnChangeWB(this.value)" id="score" class="whiteb custom-dropdown big">
+                    <option name="wgb" id="gb" value="0">No Golf Balls (0)</option>
+                    <option name="wgb" id="gb" value="15">One Golf Ball (15)</option>
+                    <option name="wgb" id="gb" value="30">Two Golf Balls (30)</option>
+                    <option name="wgb" id="gb" value="45">Three Golf Balls (45)</option>
+                </select>
+            </td>
+            <td>
+                <select onchange="OnChangeOB(this.value)" id="score" class="orangeb custom-dropdown big">
+                    <option name="ogb" id="gb" value="0">No Golf Balls (0)</option>
+                    <option name="ogb" id="gb" value="18">One Golf Ball (18)</option>
+                    <option name="ogb" id="gb" value="36">Two Golf Balls (36)</option>
+                </select>
+            </td>
+            <td>
+                <select onchange="OnChangeIB(this.value)" id="score" class="invalidb custom-dropdown big">
+                    <option name="igb" id="gb" value="0">No Balls (0)</option>
+                    <option name="igb" id="gb" value="-3">One Ball (-3)</option>
+                    <option name="igb" id="gb" value="-6">Two Balls (-6)</option>
+                    <option name="igb" id="gb" value="-9">Three Balls (-9)</option>
+                    <option name="igb" id="gb" value="-12">Four Balls (-12)</option>
+                    <option name="igb" id="gb" value="-15">Five Balls (-15)</option>
+                </select>
+            </td>
+            <td>
+                <select onchange="OnChangeRB(this.value)" id="score" class="remainb custom-dropdown big">
+                    <option name="rgb" id="gb" value="5">No Balls Left (5)</option>
+                    <option name="rgb" id="gb" value="4">One Ball Left (4)</option>
+                    <option name="rgb" id="gb" value="3">Two Balls Left (3)</option>
+                    <option name="rgb" id="gb" value="2">Three Balls Left (2)</option>
+                    <option name="rgb" id="gb" value="1">Four Balls Left (1)</option>
+                    <option name="rgb" id="gb" value="0">Five Balls Left (0)</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+
+</div>
+<br />
+<div style="background-color:lightgray;border-radius:6px;border:10px solid lightgray;z-index:-1">
+    <table style="border:none;width:100%;text-align:center">
+        <tr style="text-align:center">
+            <th>Game Ending Mission</th>
+            <th>Robot Stayed Sturdy</th>
+        </tr>
+        <tr>
+            <td>
+                <select onchange="OnChangeBS4(this.value)" id="score" class="extra1 custom-dropdown big">
+                    <option name="gem" id="bs" value="0">Mission Failed (0)</option>
+                    <option name="gem" id="bs" value="12">Mission Completed (12)</option>
+                </select>
+            </td>
+            <td>
+                <select onchange="OnChangeBS3(this.value)" id="score" class="extra2 custom-dropdown big">
+                    <option name="str" id="bs" value="0">Not Sturdy (0)</option>
+                    <option name="str" id="bs" value="2">Sturdy (2)</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+
+</div>
+<br />
+<div style="background-color:lightgray;border-radius:6px;border:10px solid lightgray;z-index:-1">
+    <table style="border:none;width:100%;text-align:center">
+        <tr style="text-align:center">
+            <th>Full Reset</th>
+        </tr>
+        <tr>
+            <td>
+                <select onchange="OnChangeBS4(this.value)" id="score" class="penalty1 custom-dropdown big">
+                    <option name="frs" id="bs" value="0">No Reset Done (0)</option>
+                    <option name="frs" id="bs" value="-3">Full Reset Done (-3)</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+
+</div>
+<br />
+<script>
+    $(".bottle1").val(0).attr("selected", "selected");
+    $(".bottle2").val(0).attr("selected", "selected");
+    $(".bottle3").val(0).attr("selected", "selected");
+    $(".bottle4").val(0).attr("selected", "selected");
+    $(".bottle5").val(0).attr("selected", "selected");
+    $(".whiteb").val(0).attr("selected", "selected");
+    $(".orangeb").val(0).attr("selected", "selected");
+    $(".invalidb").val(0).attr("selected", "selected");
+    $(".remainb").val(5).attr("selected", "selected");
+    $(".extra1").val(0).attr("selected", "selected");
+    $(".extra2").val(0).attr("selected", "selected");
+    $(".penalty1").val(0).attr("selected", "selected");
+</script>
+<script>
+    $(document).on('change', '#score', function () {
+        var total = 0;
+        var bot1 = 0;
+        var bot2 = 0;
+        var bot3 = 0;
+        var bot4 = 0;
+        var bot5 = 0;
+        var wgb = 0;
+        var ogb = 0;
+        var igb = 0;
+        var rgb = 0;
+        var ex1 = 0;
+        var ex2 = 0;
+        var pe1 = 0;
+        var pe2 = 0;
+        var scoredballs = 0;
+        var invalidballs = 0;
+        var remainingballs = 5;
+        var stacked = false;
+        var allowedsb = false;
+        $('.bottle1').each(function () {
+            total += parseFloat($(this).val());
+            bot1 += parseFloat($(this).val());
+        });
+        $('.bottle2').each(function () {
+            total += parseFloat($(this).val());
+            bot2 += parseFloat($(this).val());
+        });
+        $('.bottle3').each(function () {
+            total += parseFloat($(this).val());
+            bot3 += parseFloat($(this).val());
+        });
+        $('.bottle4').each(function () {
+            total += parseFloat($(this).val());
+            bot4 += parseFloat($(this).val());
+        });
+        $('.bottle5').each(function () {
+            total += parseFloat($(this).val());
+            bot5 += parseFloat($(this).val());
+        });
+        $('.whiteb').each(function () {
+            total += parseFloat($(this).val());
+            wgb += parseFloat($(this).val());
+            scoredballs += (parseFloat($(this).val()) / 15);
+        });
+        $('.orangeb').each(function () {
+            total += parseFloat($(this).val());
+            ogb += parseFloat($(this).val());
+            scoredballs += (parseFloat($(this).val()) / 18);
+        });
+        $('.invalidb').each(function () {
+            total += parseFloat($(this).val());
+            igb += parseFloat($(this).val());
+            invalidballs += (parseFloat($(this).val()) / -3);
+        });
+        $('.remainb').each(function () {
+            total += parseFloat($(this).val());
+            rgb += parseFloat($(this).val());
+            remainingballs -= parseFloat($(this).val());
+        });
+        $('.extra1').each(function () {
+            total += parseFloat($(this).val());
+            ex1 += parseFloat($(this).val());
+        });
+        $('.extra2').each(function () {
+            total += parseFloat($(this).val());
+            ex2 += parseFloat($(this).val());
+        });
+        $('.penalty1').each(function () {
+            total += parseFloat($(this).val());
+            pe1 += parseFloat($(this).val());
+        });
+        $('#teamID').val(total)
+        var datastring = bot1 + "/" + bot2 + "/" + bot3 + "/" + bot4 + "/" + bot5 + "\\" + wgb + "/" + ogb + "/" + igb + "/" + rgb + "\\" + ex1 + "/" + ex2 + "\\" + pe1 + "/" + pe2;
+        $("#data").val(datastring);
+        $("#balls").html(scoredballs);
+        var enable = true;
+        if (invalidballs > scoredballs) {
+            $("#ivalidation").html("There are more invalid balls than there are in the hole slot! Remember, a ball is only counted invalid if it is hit into the hole slot!")
+            enable = false;
+        } else {
+            $("#ivalidation").html("")
+        }
+        if ((remainingballs + scoredballs) > 5) {
+            $("#bvalidation").html("There are more than 5 balls counted on the scoring sheet. Please adjust your 'REMAINING BALLS' counter!")
+            enable = false;
+        } else {
+            $("#bvalidation").html("")
+        }
+        if (enable == true) {
+            $("#create").attr("disabled", false);
+        } else {
+            $("#create").attr("disabled", true);
+        }
+        $("#fieldn").change(function () {
+            $("#fieldinput").val(this.val());
+        });
+    });
+</script>
+
+<script>
+
+
+    $(function () {
+        var timer = false;
+        var minutesc = 0;
+        var secondsc = 0;
+        var secondsview = "00";
+        var interval = false;
+        var allseconds = 0;
+        var part = 0;
+        var totalscore = 0;
+        var checkingscore = true;
+        var teamnumber = "";
+        var pong = false;
+        // Reference the auto-generated proxy for the hub.
+        var chat = $.connection.scoreHub;
+        // Create a function that the hub can call back to display messages.
+        chat.client.changeTeamScores = function (topten) {
+            // Add the message to the page.
+            //$('#' + teamnumber).text(score);
+            $(".topteams").empty();
+
+            $.each(topten, function (index, value) {
+                var markup = "<tr style='text-align:center;padding-left:5px'><th width='10%' style='text-align:left'>" + (index + 1) +
+                    "</th><th width='30%' style='text-align:center'>" + value.TeamNumber + "</th><th width='30%' style='text-align:center'>" +
+                    value.TeamName + "</th><th width='30%' style='text-align:center'>" +
+                    value.Average + "</th></tr>";
+                $(".topteams").append(markup);
+            });
+        };
+
+        chat.client.changeGlobalTimer = function (minutes, seconds, message, status, score) {
+            $("#minutes").html(minutes);
+            if (seconds < 10) {
+                secondsview = "0" + seconds;
+            } else {
+                secondsview = seconds;
+            }
+            $("#seconds").html(secondsview);
+            $("#message").html(message);
+            if (status == 0) {
+                $(".status").css("border-bottom", "6px black solid");
+            } else if (status == 1) {
+                $(".status").css("border-bottom", "6px green solid");
+
+            } else if (status == 2 && seconds < 1 && minutes < 1) {
+                $(".status").css("border-bottom", "6px red solid");
+            } else {
+                $(".status").css("border-bottom", "6px black solid");
+            }
+
+        };
+        chat.client.retrieveTeam = function (teamnumber) {
+            $("#teamnumber").val(teamnumber);
+        }
+        chat.client.getPong = function (direction) {
+            pong = true;
+        }
+
+        // Start the connection.
+        var fieldsub = 0;
+        var teamnumber = "";
+        var lockedin = false;
+
+        $.connection.hub.start().done(function () {
+
+            $("#disablescoreupdate").click(function () {
+                checkingscore = false;
+                chat.server.initField(fieldsub, 5, totalscore, teamnumber, checkingscore);
+                $("#currentscorestatus").html("Score Updating Disabled!");
+            });
+            $("#lookupteam").change(function () {
+                chat.server.lookUpTeam(parseFloat($("#lookupteam").val()));
+            });
+            function PongBack(direction) {
+                if (direction == 7 || direction == fieldsub) {
+                    chat.server.pong(fieldsub);
+                }
+            }
+            var pongback = setInterval(function () {
+                if (pong == true) {
+                    chat.server.pong(fieldsub);
+                }
+            }, 100);
+            $("#enablescoreupdate").click(function () {
+                checkingscore = true;
+                $("#currentscorestatus").html("Score Updating Enabled!");
+            });
+            $(document).ready(function () {
+                chat.server.lookUpTeam(parseFloat($("#lookupteam").val()));
+            });
+            $("#lockin").click(function () {
+                fieldsub += parseFloat($("#fieldn").val());
+                teamnumber += $("#teamnumber").val();
+                if (fieldsub > 6 || fieldsub < 1) {
+                    if (lockedin == false) {
+                        $("#fieldissue").text("Field must be 1-6!");
+                    }
+
+                } else {
+                    lockedin = true;
+                    $("#fieldn").attr("readonly", "readonly");
+                    $("#teamnumber").attr("readonly", "readonly");
+                    chat.server.initField(fieldsub, 1, totalscore, teamnumber, checkingscore);
+                    $("#fieldissue").text("");
+                    $("#lockin").attr("hidden", true);
+                }
+            });
+            $("#readystatus").click(function () {
+                if (lockedin == true) {
+                    chat.server.initField(fieldsub, 2, totalscore, teamnumber, checkingscore);
+                    $("#fieldissue").text("");
+                }
+            });
+            $("#notreadystatus").click(function () {
+                if (lockedin == true) {
+                    chat.server.initField(fieldsub, 1, totalscore, teamnumber, checkingscore);
+                    $("#fieldissue").text("");
+                }
+            });
+            $('#starttimer').click(function () {
+                // Call the Send method on the hub.
+
+                // Clear text box and reset focus for next comment.
+                $('#message').val('').focus();
+            });
+            var updatescore = setInterval(function () {
+                if (lockedin == true && checkingscore == true) {
+                    totalscore = $("#teamID").val();
+                    chat.server.initField(fieldsub, 5, totalscore, teamnumber, checkingscore);
+                    //USE 5 FOR NO CHANGE
+                }
+            }, 100);
+        });
+        $("#fieldn").change(function () {
+            $("#fieldinput").val($("#fieldn").val());
+        });
+
+        function Countdown() {
+            if (timer == true) {
+                if (secondsc == 0) {
+                    if (minutesc > 0) {
+                        minutesc = minutesc - 1;
+                        secondsc = 59;
+                        secondsview = "59";
+                    } else {
+                        timer = false;
+                        TimerEnded();
+                    }
+
+                } else if (secondsc < 11) {
+                    secondsc = secondsc - 1;
+                    secondsview = "0" + secondsc;
+                }
+                else {
+                    secondsc = secondsc - 1;
+                    secondsview = secondsc;
+                }
+            }
+        }
+        function StartTimer() {
+            var count = setInterval(function () {
+                $("#minutes").html(minutesc);
+                $("#seconds").html(secondsview);
+                if (abort == true) {
+                    clearInterval(count);
+                }
+                if ((part % 10) == 0) {
+                    Countdown();
+                }
+                if (((allseconds / 4) > (minutesc * 60) + (secondsc)) && timer == true) {
+                    $(".status").css("border-bottom", "orange 6px solid");
+                }
+                part++;
+            }, 100);
+        }
+        function TimerEnded() {
+            abort = true;
+            timer = false;
+            $(".status").css("border-bottom", "red 6px solid");
+        }
+
+
+
+    });
+
+
+</script>
+<br />
+
+<script type="text/javascript">
+    $("#bitslot4 select").on("change", function () {
+
+        //Stack
+        var subtotalstack = 0;
+        $(":radio[id='stack']:checked").each(function () {
+            subtotalstack += Number(this.value);
+        });
+        $("#subtotalstack").text(subtotalstack);
+        //Extra
+        var subtotalextra = 0;
+        $(":radio[id='extra']:checked").each(function () {
+            subtotalextra += Number(this.value);
+        });
+        $("#subtotalextra").text(subtotalextra);
+        //Penalty
+        var subtotalpenalty = 0;
+        $(":radio[id='penalty']:checked").each(function () {
+            subtotalpenalty += Number(this.value);
+        });
+        $("#subtotalpenalty").text(subtotalpenalty);
+        //Total
+        var total = 0;
+        $(":radio:checked").each(function () {
+            total += Number(this.value);
+        });
+        $("#total").text(total);
+        $("#teamID").val(total);
+        $("#teamIDcopy").text(total);
+        var description = subtotalbs + "/" + subtotalstack + "/" + subtotalextra + "/" + subtotalpenalty;
+        $("#data").val(description);
+    });
+
+</script>
+
+@section Scripts {
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+}

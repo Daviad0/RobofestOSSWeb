@@ -1,0 +1,136 @@
+﻿@model RobofestWTECore.Models.ViewModels.TeamMatchDataModel
+
+<h1>Team Matches</h1>
+<div>
+    <input type="button" class="btn btn-success" id="listallteams" value="Save Changes" />
+    <input type="button" class="btn btn-danger" id="discardchanges" value="Discard Changes" />
+    <a class="btn btn-warning" href="@Url.Action("TeamMatchesEdit", "Team")">Edit Match Status</a>
+    <input type="number" class="input-lg" id="numberoffields" value="@Model.NumFields" />
+</div>
+<br />
+@{ int i = 0;}
+@foreach (var match in Model.Matches.OrderBy(m => m.MatchID).ThenBy(m => m.Order))
+        {
+            i++;
+            string idtoinput = i.ToString() + "-" + match.Order;
+            string idtoinputbutton = i.ToString() + "-" + match.Order + "-add";
+            string idtoinputteam = i.ToString() + "-" + match.Order + "-team";
+            string idtoinputbuttonremove = i.ToString() + "-" + match.Order + "-remove";
+            string idtoinputround = i.ToString() + "-" + match.Order + "-round";
+            string idtoinputcompleted = i.ToString() + "-" + match.Order + "-completed";
+            string idtoinputrerun = i.ToString() + "-" + match.Order + "-rerun";
+            string idtoinputtestmatch = i.ToString() + "-" + match.Order + "-testmatch";
+            string idtoinputparentc = i.ToString() + "-" + match.Order + "-parentcomp";
+            string idtoinputparentt = i.ToString() + "-" + match.Order + "-parenttest";
+            string idtoinputparentr = i.ToString() + "-" + match.Order + "-parentrerun";
+<div style="background-color:lightgray;border-radius:6px;border:10px solid lightgray;z-index:-1;margin-bottom:10px;" id="@idtoinput" class="matchentry">
+    <input type="text" class="teamentry input-sm" value="@match.TeamNumber" maxlength="7" placeholder="Team Number" id="@idtoinputteam" />
+    <input type="button" class="btn addafter" id="@idtoinputbutton" value="Add Another Below" />
+    <input type="button" class="btn removeentry" id="@idtoinputbuttonremove" value="Delete This Entry" />
+    <label for="@idtoinputround">Round #</label>
+    <input type="number" class="input-sm" value="@match.RoundNum" id="@idtoinputround" placeholder="Round #" max="2" min="1" />
+    @if (match.Completed == true)
+    {
+        <label class="checkbox-inline" style="background-color:dimgray;color:white" id="@idtoinputparentc">
+            <input type="checkbox" class="checkbox" id="@idtoinputcompleted" checked />Status Completed
+        </label>
+    }
+    else if (match.Completed == false)
+    {
+        <label class="checkbox-inline" style="background-color:darkorange;color:white" id="@idtoinputparentc">
+            <input type="checkbox" class="checkbox" id="@idtoinputcompleted" />Status Completed
+        </label>
+    }
+    @if (match.Test == true)
+    {
+        <label class="checkbox-inline" style="background-color:deeppink;color:white" id="@idtoinputparentt">
+            <input type="checkbox" class="checkbox" id="@idtoinputtestmatch" checked />Test Match
+        </label>
+    }
+    else
+    {
+        <label class="checkbox-inline" style="background-color:dimgray;color:white" id="@idtoinputparentt">
+            <input type="checkbox" class="checkbox" id="@idtoinputtestmatch" />Test Match
+        </label>
+    }
+    @if (match.Rerun == true)
+    {
+        <label class="checkbox-inline" style="background-color:forestgreen;color:white" id="@idtoinputparentr">
+            <input type="checkbox" class="checkbox" id="@idtoinputrerun" checked />Rerun
+        </label>
+    }
+    else
+    {
+        <label class="checkbox-inline" style="background-color:dimgray;color:white" id="@idtoinputparentr">
+            <input type="checkbox" class="checkbox" id="@idtoinputrerun" />Rerun
+        </label>
+    }
+
+
+
+
+</div>
+}
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+    var i = 0;
+    var reloads = 0;
+    chat.on("reloadRequired", function () {
+        reloads += 1
+        if (reloads >= i) {
+            location.reload(true)
+        }
+    });
+    chat.start().then(function () {
+        var scheduler = {
+            "schedules" : []
+        }
+        $(document).on('click', '#listallteams', function () {
+            chat.on("addMatches", function () {
+                var numfields = parseInt($("#numberoffields").val())
+                chat.invoke("sendAllMatches", numfields);
+            });
+            chat.invoke("clearSchedule");
+            $(".matchentry").each(function () {
+                i += 1;
+                var localid = this.id
+                var numfields = parseInt($("#numberoffields").val())
+                var schedule = {
+
+                };
+                schedule.TeamNumber = $(this).children("#" + localid + "-team").val();
+                schedule.RoundNum = $(this).children("#" + localid + "-round").val();
+                schedule.CompID = 1;
+                schedule.MatchID = i;
+                schedule.Order = 1;
+                schedule.Rerun = $("#" + localid + "-rerun").is(":checked");
+                schedule.Test = $("#" + localid + "-testmatch").is(":checked");
+                schedule.Completed = $("#" + localid + "-completed").is(":checked");
+                scheduler.schedules.push(schedule);
+                completedschedule = JSON.stringify(schedule);
+                chat.invoke("changeMatches", completedschedule, numfields);
+            });
+            
+        });
+        $(document).on('click', '.addafter', function () {
+            var clearedstring = this.id.replace("-add", "");
+            $("#" + clearedstring + "-add").attr("disabled", true)
+            var newid = clearedstring.split("-")
+            var newidstring = newid[0] + "-" + (parseInt(newid[1]) + 1)
+            $("<div style='background-color:lightgray;border-radius:6px;border:10px solid lightgray;z-index:-1;margin-bottom:10px' id='" + newidstring + "' class='matchentry'><input type='text' class='teamentry input-sm' value='EMPTY' maxlength='7' placeholder='Team Number' id='" + newidstring + "-team' style='margin-right:4px'/><input type='button' class='btn addafter' id='" + newidstring + "-add' value='Add Another Below' style='margin-right:4px'/><input type='button' class='btn removeentry' id='" + newidstring + "-remove' value='Delete This Entry' placeholder='Round #' style='margin-right:4px'/><label for='" + newidstring + "-round' style='margin-right:4px'>Round #</label><input type='number' class='input-sm' id='" + newidstring + "-round' value=1 max='2' min='1' style='margin-right:4px'/><label class='checkbox-inline' style='background-color:darkorange;color:white'><input type='checkbox' class='checkbox' id='" + newidstring + "-completed' />Status Completed</label><label class='checkbox-inline' style='background-color:dimgray;color:white'><input type='checkbox' class='checkbox' id='" + newidstring + "-testmatch' />Test Match</label><label class='checkbox-inline' style='background-color:dimgray;color:white'><input type='checkbox' class='checkbox' id='" + newidstring + "-rerun' />Rerun</label></div>").insertAfter("#" + clearedstring)
+        });
+        $(document).on('click', '.removeentry', function () {
+            var clearedstring = this.id.replace("-remove", "");
+            $("#" + clearedstring).remove();
+        });
+        $("#discardchanges").on("click", function () {
+            location.reload(true);
+        });
+        //
+    
+    
+        
+    });
+</script>

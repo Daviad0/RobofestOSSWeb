@@ -1,0 +1,106 @@
+﻿@model RobofestWTE.Models.StudentTeam
+
+@{
+    ViewBag.Title = "Edit";
+}
+<style>
+    .btn-group {
+        display: flex;
+    }
+
+    .btn {
+        flex: 1
+    }
+
+    btn-default: {
+        background-color: gray
+    }
+    .createforms {
+        border: none;
+        border-bottom: 2px solid gray;
+        padding-left: 2px;
+        transition: 0.3s;
+        border-radius: 4px;
+    }
+
+        .createforms:hover {
+            background-color: #ededed;
+            padding-left: 5px;
+        }    
+    .createforms:focus {
+            border-bottom: 2px solid red;
+            background-color: #ededed;
+            padding-left:5px;
+        }
+        .createforms:disabled {
+            cursor: not-allowed;
+            padding-left: 2px;
+            transition: 0.3s;
+        }
+            .createforms:disabled:hover, .createforms:disabled:active {
+                cursor: not-allowed;
+                background-color: red;
+                padding-left: 5px;
+                opacity: 0.6;
+            }
+</style>
+<h2>Edit</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+<div class="form-horizontal">
+    <h4>Team</h4>
+    <hr />
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.TeamID)
+    @Html.HiddenFor(model => model.CompID)
+
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.TeamID, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.TeamID, new { @class = "createforms", @disabled = "disabled" })
+    </div>
+
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.CompID, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.CompID, new { @class = "createforms", @disabled = "disabled" })
+    </div>
+
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.TeamName, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.TeamName, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.TeamName, "", new { @class = "text-danger" })
+
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.TeamNumberBranch, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.TeamNumberBranch, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.TeamNumberBranch, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.TeamNumberSpecific, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.TeamNumberSpecific, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.TeamNumberSpecific, "", new { @class = "text-danger" })
+
+
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Location, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.Location, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
+
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        @Html.LabelFor(model => model.Coach, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.TextBoxFor(model => model.Coach, new { @class = "createforms" })
+    </div>
+    @Html.ValidationMessageFor(model => model.Coach, "", new { @class = "text-danger" })
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;padding-bottom:10px">
+        <input type="submit" value="Save" class="btn btn-default" />
+    </div>
+
+
+</div>
+}

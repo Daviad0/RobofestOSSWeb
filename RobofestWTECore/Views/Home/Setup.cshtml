@@ -1,0 +1,152 @@
+﻿@model RobofestWTE.Models.SetupPageModel
+@{
+    ViewData["Title"] = "Setup";
+}
+<style>
+    .protectedpassword{
+        color:black;
+        background-color:black;
+    }
+    .protectedpassword:hover{
+        color:white;
+    }
+</style>
+<h2>Robofest Scoring Online (RSO) Setup Page</h2>
+@if (User.Identity.IsAuthenticated)
+{
+    @if (Model.SetupCompleted == true)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email to Sign-In</th>
+                    <th>Password (Hover to Reveal)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var account in Model.Accounts)
+                {
+                    <tr>
+                        <td>@account.Username</td>
+                        <td>@account.Email</td>
+                        <td><input type="text" value="@account.PublicPasskey" style="font-family:Consolas" class="input-sm protectedpassword" disabled></td>
+                    </tr>
+                }
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td><input type="button" id="showhideall" value="Show All Passwords" class="btn btn-danger" /></td>
+                </tr>
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="input-group" style="margin-top:10px">
+            <span class="input-group-addon">
+                <span>Competition Password</span>
+            </span>
+            <input type="password" id="password" placeholder="##############################" class="form-control" style="z-index:0" />
+        </div>
+        <div class="input-group" style="margin-top:10px">
+            <span class="input-group-addon">
+                <span>Competition ID</span>
+            </span>
+            <input type="number" id="compid" value="1" class="form-control" style="z-index:0" />
+        </div>
+        <div class="input-group" style="margin-top:10px">
+            <span class="input-group-addon">
+                <span>Your UserID</span>
+            </span>
+            <input type="text" id="userid" value="@User.Identity.Name" class="form-control" style="z-index:0" disabled />
+        </div>
+        <h3 style="text-align:center">Account Details</h3>
+        <p style="text-align:center">Remember, you can still add more later on!</p>
+        <div class="input-group" style="margin-top:10px">
+            <span class="input-group-addon" style="background-color:blue;color:white">
+                <span># of Preset Judges</span>
+            </span>
+            <input type="number" id="judges" value="6" class="form-control" style="z-index:0" max="12" min="0" />
+        </div>
+        <div class="input-group" style="margin-top:10px">
+            <span class="input-group-addon" style="background-color:cornflowerblue;color:white">
+                <span># of Field Staff</span>
+            </span>
+            <input type="number" id="fieldstaff" value="5" class="form-control" style="z-index:0" max="20" min="0" />
+        </div>
+        <div class="input-group" style="margin-top:10px">
+            <span class="input-group-addon" style="background-color:darkorchid;color:white">
+                <span># of Managers</span>
+            </span>
+            <input type="number" id="managers" value="1" class="form-control" style="z-index:0" max="5" min="0" />
+        </div>
+        <div class="input-group" style="margin-top:10px">
+            <span class="input-group-addon" style="background-color:hotpink;color:white">
+                <span># of Tech</span>
+            </span>
+            <input type="number" id="tech" value="2" class="form-control" style="z-index:0" max="5" min="0" />
+        </div>
+        <input type="button" class="btn btn-warning" style="width:100%;margin-top:10px" value="Setup Match" id="setupmatch" />
+        <div class="container">
+            <p id="progresslabel">Progress Bar With Label</p>
+            <div class="progress">
+                <div class="progress-bar" id="progressbar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                    0%
+                </div>
+            </div>
+        </div>
+        <p id="status"></p>
+    }
+
+}
+else
+{
+    <p style="color:red">You must be signed in to setup the competition!</p>
+}
+
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    $(function () {
+        var showingall = false;
+        // Reference the auto-generated proxy for the hub.
+
+        var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+        // Create a function that the hub can call back to display messages.
+        chat.on("setupSuccess", function () {
+            $("#status").css("color", "green");
+            $("#status").html("Setup has been completed! You are now an administrator!");
+
+        });
+        chat.on("setupFailure", function () {
+            $("#status").css("color", "red");
+            $("#status").html("Setup failed! Your password is incorrect!");
+        });
+        chat.on("setupProgress", function (percent, message) {
+            $("#progresslabel").html(message);
+            $("#progressbar").css("width", (percent + "%"));
+            $("#progressbar").html((percent + "%"));
+            $("#progressbar").attr("aria-valuenow", percent);
+        });
+        chat.start().then(function () {
+            $("#setupmatch").click(function () {
+                $("#status").css("color", "black");
+                $("#status").html("");
+                chat.invoke("setupMatch", $("#password").val(), $("#userid").val(), parseInt($("#compid").val()), parseInt($("#judges").val()), parseInt($("#fieldstaff").val()), parseInt($("#managers").val()), parseInt($("#tech").val()))
+            })
+            $("#showhideall").click(function () {
+                if (showingall == false) {
+                    $(".protectedpassword").css("color", "white")
+                    $("#showhideall").val("Hide All Passwords")
+                    showingall == true;
+                } else {
+                    $(".protectedpassword").css("color", "black")
+                    $("#showhideall").val("Show All Passwords")
+                    showingall == false;
+                }
+                
+            });
+        });
+    });
+</script>
