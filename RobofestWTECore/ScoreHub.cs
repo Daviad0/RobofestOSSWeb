@@ -42,6 +42,7 @@ namespace RobofestWTECore
             };
         private static int ScorekeeperStatus;
         private static bool JudgesLocked = true;
+        private static string appSessionID = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
         private static Dictionary<string, RoAuthUser> appAuthUsers = new Dictionary<string, RoAuthUser>();
         //0 = BUSY, 1 = REVIEWING, 2 = OK
 
@@ -662,7 +663,9 @@ namespace RobofestWTECore
             int[] Rounds = { OnDeck[1].Round, OnDeck[2].Round, OnDeck[3].Round, OnDeck[4].Round, OnDeck[5].Round, OnDeck[6].Round };
             bool[] Reruns = { OnDeck[1].Rerun, OnDeck[2].Rerun, OnDeck[3].Rerun, OnDeck[4].Rerun, OnDeck[5].Rerun, OnDeck[6].Rerun };
             bool[] Tests = { OnDeck[1].Test, OnDeck[2].Test, OnDeck[3].Test, OnDeck[4].Test, OnDeck[5].Test, OnDeck[6].Test };
-            Clients.Client(Context.ConnectionId).SendAsync("fieldDefaults", TeamIDs, TeamNumbers, Rounds, Reruns, Tests);
+            var competition = (from c in db.Competitions where c.CompID == 1 select c).FirstOrDefault();
+            bool[] validate = { competition.validmatch1, competition.validmatch2, competition.validmatch3, competition.validmatch4, competition.validmatch5, competition.validmatch6 };
+            Clients.Client(Context.ConnectionId).SendAsync("fieldDefaults", TeamIDs, TeamNumbers, Rounds, Reruns, Tests, validate);
             Clients.Client(Context.ConnectionId).SendAsync("changeJudgeLock", JudgesLocked);
         }
         public void ScoreKeeperStatusSet(int status)
@@ -721,7 +724,7 @@ namespace RobofestWTECore
                     await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 75);
                     appAuthUsers.Add(authToken, auth);
                     await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 80);
-                    await Clients.Client(Context.ConnectionId).SendAsync("authSucc", authToken);
+                    await Clients.Client(Context.ConnectionId).SendAsync("authSucc", authToken, appSessionID);
                 }
                 else
                 {
@@ -734,6 +737,28 @@ namespace RobofestWTECore
             }
             
             
+        }
+        public async Task TryTokenLogin(string userToken, string sessionToken)
+        {
+            if(sessionToken != appSessionID)
+            {
+                await Clients.Client(Context.ConnectionId).SendAsync("tokenAuthExpired", appSessionID, sessionToken);
+            }
+            else
+            {
+                if (appAuthUsers.ContainsKey(userToken))
+                {
+                    await Clients.Client(Context.ConnectionId).SendAsync("tokenAuthSucc");
+                }
+                else
+                {
+                    await Clients.Client(Context.ConnectionId).SendAsync("tokenAuthInvalid");
+                }
+            }
+        }
+        public async Task CheckSignalRHub()
+        {
+            await Clients.Client(Context.ConnectionId).SendAsync("signalRConnected");
         }
         public Task ThrowException()
         {

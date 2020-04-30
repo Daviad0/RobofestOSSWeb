@@ -12,6 +12,11 @@ using RobofestWTECore.Models;
 using RobofestWTECore.Controllers;
 using OdeToCode.AddFeatureFolders;
 using Microsoft.AspNet.Mvc.Razor;
+using Serilog.Extensions.Logging;
+using Serilog;
+using Microsoft.Extensions.Logging;
+using Serilog.Formatting.Json;
+using System.Net;
 
 namespace RobofestWTECore
 {
@@ -33,7 +38,7 @@ namespace RobofestWTECore
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
+            
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(
                     Configuration.GetConnectionString("DefaultConnection")));
@@ -51,10 +56,17 @@ namespace RobofestWTECore
             services.Configure<RazorViewEngineOptions>(options => {
                 options.ViewLocationExpanders.Add(new ViewLocationExpander());
             });
+            services.AddLogging(config =>
+            {
+                config.ClearProviders();
+                config.AddConfiguration(Configuration.GetSection("Loggin"));
+                config.AddDebug();
+                config.AddEventSourceLogger();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -87,6 +99,9 @@ namespace RobofestWTECore
             {
                 routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
+            //var log = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File(new JsonFormatter(),@"C:\inetpub\serilog\{Date}.txt", shared: true).CreateLogger();
+            //loggerFactory.AddSerilog(log);
+            ServicePointManager.DefaultConnectionLimit = int.MaxValue;
         }
     }
 }

@@ -1081,7 +1081,7 @@
         chat.on("getPong", function (direction) {
             pong = true;
         });
-        chat.on("fieldDefaults", function (teamids, teamnumbers, rounds, reruns, tests) {
+        chat.on("fieldDefaults", function (teamids, teamnumbers, rounds, reruns, tests, valids) {
             defaultfields[0][0] = teamids[0];
             defaultfields[1][0] = teamids[1];
             defaultfields[2][0] = teamids[2];

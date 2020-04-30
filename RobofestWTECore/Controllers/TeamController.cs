@@ -10,11 +10,13 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RobofestWTE.Models;
 using RobofestWTECore.Data;
 using RobofestWTECore.Models;
 using RobofestWTECore.Models.ViewModels;
+using Serilog;
 
 namespace RobofestWTECore.Controllers
 {
@@ -25,14 +27,16 @@ namespace RobofestWTECore.Controllers
         private readonly ApplicationDbContext context;
         private readonly IHubContext<ScoreHub> _hubContext;
         private readonly Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> userManager;
+        private readonly ILogger<TeamController> _logger;
 
-        public TeamController(/*Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager,*/ ApplicationDbContext context, GameContext db, IHubContext<ScoreHub> hubContext, Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> userManager2)
+        public TeamController(/*Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager,*/ ApplicationDbContext context, GameContext db, IHubContext<ScoreHub> hubContext, Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> userManager2, ILogger<TeamController> logger)
         {
             //this.userManager = userManager;
             this.context = context;
             this.db = db;
             _hubContext = hubContext;
             userManager = userManager2;
+            _logger = logger;
         }
 
 
@@ -571,6 +575,7 @@ namespace RobofestWTECore.Controllers
         }
         public ActionResult RawLeaderboard()
         {
+            _logger.LogInformation("Test 1");
             var ranklist = new List<ReturnRank>();
             foreach (var team in db.StudentTeams.Where(x => x.CompID == 1))
             {
@@ -597,14 +602,17 @@ namespace RobofestWTECore.Controllers
                 teamtoadd.AverageScore = (teamtoadd.Round1Score + teamtoadd.Round2Score) / 2;
                 ranklist.Add(teamtoadd);
             }
+            _logger.LogInformation("Test 2");
             int i = 0;
             foreach(var team in ranklist.OrderByDescending(x => x.AverageScore).ThenBy(x => x.TeamNumber))
             {
                 i++;
                 team.Rank = i;
             }
+            _logger.LogInformation("Test 3");
             ranklist = ranklist.OrderBy(x => x.Rank).ToList();
             var json = JsonConvert.SerializeObject(ranklist);
+            _logger.LogInformation("Test 4");
             return Content(json);
         }
         public ActionResult RawTeamData(string TeamNumber)
