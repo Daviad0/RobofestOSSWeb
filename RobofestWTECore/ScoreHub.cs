@@ -42,6 +42,7 @@ namespace RobofestWTECore
             };
         private static int ScorekeeperStatus;
         private static bool JudgesLocked = true;
+        private static Dictionary<int, StaticCompetition> RunningComp;
         private static string appSessionID = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
         private static Dictionary<string, RoAuthUser> appAuthUsers = new Dictionary<string, RoAuthUser>();
         //0 = BUSY, 1 = REVIEWING, 2 = OK
@@ -55,6 +56,15 @@ namespace RobofestWTECore
             _hubContext = hubContext;
             userManager = userManager2;
             roleManager = roleManager2;
+        }
+        public async Task RegisterCompetitionAsActive(int CompID)
+        {
+            var newCompetition = new StaticCompetition();
+            if (!RunningComp.ContainsKey(CompID))
+            {
+                RunningComp.Add(CompID, newCompetition);
+            }
+            
         }
         public async Task SetupMatch(string Password, string UserName, int compid, int judges, int fieldstaff, int managers, int tech)
         {
@@ -464,17 +474,23 @@ namespace RobofestWTECore
         {
             Clients.All.SendAsync("stopGlobalTimer");
         }
-        public void InitField(int field, int status, int score, string teamnumber, bool connection, bool matchkeeper, string data)
+        public void InitField(int field, int status, int score, string teamnumber, bool connection, bool matchkeeper, string data, int compid)
         {
-            Clients.All.SendAsync("initFieldView",field, status, score, teamnumber, connection, matchkeeper, data);
-            if (matchkeeper != true)
+            if (RunningComp.ContainsKey(compid))
             {
-                Fields[field].ClientConnectionID = Context.ConnectionId;
-                Fields[field].CurrentScore = score;
-                Fields[field].TeamNumber = teamnumber;
-                Fields[field].Data = data;
+                Clients.All.SendAsync("initFieldView", field, status, score, teamnumber, connection, matchkeeper, data);
+                if (matchkeeper != true)
+                {
+
+                    RunningComp[compid].Fields[field].ClientConnectionID = Context.ConnectionId;
+                    RunningComp[compid].Fields[field].CurrentScore = score;
+                    RunningComp[compid].Fields[field].TeamNumber = teamnumber;
+                    RunningComp[compid].Fields[field].Data = data;
+                }
+                RunningComp[compid].Fields[field].Status = status;
             }
-            Fields[field].Status = status;
+            //ADDTOPAGE
+            
             
             //0 = NotInit, 1 = NotReady, 2 = Ready
         }
@@ -549,88 +565,93 @@ namespace RobofestWTECore
             MatchDataModelSent.R2List = MatchDataModelSent.R2List.Where(a => a.FieldR2 == 0).OrderByDescending(a => a.TeamNumberBranch).ThenByDescending(a => a.TeamNumberSpecific).ToList();
             Clients.All.SendAsync("changeList", MatchDataModelSent);
         }
-        public void MatchMaker(string json)
+        public void MatchMaker(string json, int compid)
         {
-            var matcheslist = JsonConvert.DeserializeObject<List<ScheduleItem>>(json);
-            matcheslist = matcheslist.OrderBy(x => x.Field).ToList();
-            //COMPID = 1 for DEMO
-            var competition = (from c in db.Competitions where c.CompID == 1 select c).FirstOrDefault();
-            competition.field1preferred = matcheslist[0].TeamNumber;
-            OnDeck[1].TeamNumber = matcheslist[0].TeamNumber;
-            competition.field2preferred = matcheslist[1].TeamNumber;
-            OnDeck[2].TeamNumber = matcheslist[1].TeamNumber;
-            competition.field3preferred = matcheslist[2].TeamNumber;
-            OnDeck[3].TeamNumber = matcheslist[2].TeamNumber;
-            competition.field4preferred = matcheslist[3].TeamNumber;
-            OnDeck[4].TeamNumber = matcheslist[3].TeamNumber;
-            competition.field5preferred = matcheslist[4].TeamNumber;
-            OnDeck[5].TeamNumber = matcheslist[4].TeamNumber;
-            competition.field6preferred = matcheslist[5].TeamNumber;
-            OnDeck[6].TeamNumber = matcheslist[5].TeamNumber;
-            competition.validmatch1 = matcheslist[0].Valid;
-            competition.validmatch2 = matcheslist[1].Valid;
-            competition.validmatch3 = matcheslist[2].Valid;
-            competition.validmatch4 = matcheslist[3].Valid;
-            competition.validmatch5 = matcheslist[4].Valid;
-            competition.validmatch6 = matcheslist[5].Valid;
-            db.Competitions.Update(competition);
-            db.SaveChanges();
-            Clients.All.SendAsync("availableSelections", matcheslist[0].TeamNumber, matcheslist[1].TeamNumber, matcheslist[2].TeamNumber, matcheslist[3].TeamNumber, matcheslist[4].TeamNumber, matcheslist[5].TeamNumber, 1);
-            Clients.All.SendAsync("validateSelections", matcheslist[0].Valid, matcheslist[1].Valid, matcheslist[2].Valid, matcheslist[3].Valid, matcheslist[4].Valid, matcheslist[5].Valid);
-            OnDeck[1].TeamID = 0;
-            OnDeck[2].TeamID = 0;
-            OnDeck[3].TeamID = 0;
-            OnDeck[4].TeamID = 0;
-            OnDeck[5].TeamID = 0;
-            OnDeck[6].TeamID = 0;
-            OnDeck[1].Rerun = matcheslist[0].Rerun;
-            OnDeck[2].Rerun = matcheslist[1].Rerun;
-            OnDeck[3].Rerun = matcheslist[2].Rerun;
-            OnDeck[4].Rerun = matcheslist[3].Rerun;
-            OnDeck[5].Rerun = matcheslist[4].Rerun;
-            OnDeck[6].Rerun = matcheslist[5].Rerun;
-            OnDeck[1].Test = matcheslist[0].Test;
-            OnDeck[2].Test = matcheslist[1].Test;
-            OnDeck[3].Test = matcheslist[2].Test;
-            OnDeck[4].Test = matcheslist[3].Test;
-            OnDeck[5].Test = matcheslist[4].Test;
-            OnDeck[6].Test = matcheslist[5].Test;
-            OnDeck[1].Round = matcheslist[0].Round;
-            OnDeck[2].Round = matcheslist[1].Round;
-            OnDeck[3].Round = matcheslist[2].Round;
-            OnDeck[4].Round = matcheslist[3].Round;
-            OnDeck[5].Round = matcheslist[4].Round;
-            OnDeck[6].Round = matcheslist[5].Round;
-            if (OnDeck[1].TeamNumber.Contains("-"))
+            //ADDTOPAGE
+            if (RunningComp.ContainsKey(compid))
             {
-                var FieldsQuery1 = OnDeck[1].TeamNumber.Split("-");
-                OnDeck[1].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
+                var matcheslist = JsonConvert.DeserializeObject<List<ScheduleItem>>(json);
+                matcheslist = matcheslist.OrderBy(x => x.Field).ToList();
+                //COMPID = 1 for DEMO
+                var competition = (from c in db.Competitions where c.CompID == 1 select c).FirstOrDefault();
+                competition.field1preferred = matcheslist[0].TeamNumber;
+                RunningComp[compid].OnDeck[1].TeamNumber = matcheslist[0].TeamNumber;
+                competition.field2preferred = matcheslist[1].TeamNumber;
+                RunningComp[compid].OnDeck[2].TeamNumber = matcheslist[1].TeamNumber;
+                competition.field3preferred = matcheslist[2].TeamNumber;
+                RunningComp[compid].OnDeck[3].TeamNumber = matcheslist[2].TeamNumber;
+                competition.field4preferred = matcheslist[3].TeamNumber;
+                RunningComp[compid].OnDeck[4].TeamNumber = matcheslist[3].TeamNumber;
+                competition.field5preferred = matcheslist[4].TeamNumber;
+                RunningComp[compid].OnDeck[5].TeamNumber = matcheslist[4].TeamNumber;
+                competition.field6preferred = matcheslist[5].TeamNumber;
+                RunningComp[compid].OnDeck[6].TeamNumber = matcheslist[5].TeamNumber;
+                competition.validmatch1 = matcheslist[0].Valid;
+                competition.validmatch2 = matcheslist[1].Valid;
+                competition.validmatch3 = matcheslist[2].Valid;
+                competition.validmatch4 = matcheslist[3].Valid;
+                competition.validmatch5 = matcheslist[4].Valid;
+                competition.validmatch6 = matcheslist[5].Valid;
+                db.Competitions.Update(competition);
+                db.SaveChanges();
+                Clients.All.SendAsync("availableSelections", matcheslist[0].TeamNumber, matcheslist[1].TeamNumber, matcheslist[2].TeamNumber, matcheslist[3].TeamNumber, matcheslist[4].TeamNumber, matcheslist[5].TeamNumber, 1);
+                Clients.All.SendAsync("validateSelections", matcheslist[0].Valid, matcheslist[1].Valid, matcheslist[2].Valid, matcheslist[3].Valid, matcheslist[4].Valid, matcheslist[5].Valid);
+                RunningComp[compid].OnDeck[1].TeamID = 0;
+                RunningComp[compid].OnDeck[2].TeamID = 0;
+                RunningComp[compid].OnDeck[3].TeamID = 0;
+                RunningComp[compid].OnDeck[4].TeamID = 0;
+                RunningComp[compid].OnDeck[5].TeamID = 0;
+                RunningComp[compid].OnDeck[6].TeamID = 0;
+                RunningComp[compid].OnDeck[1].Rerun = matcheslist[0].Rerun;
+                RunningComp[compid].OnDeck[2].Rerun = matcheslist[1].Rerun;
+                RunningComp[compid].OnDeck[3].Rerun = matcheslist[2].Rerun;
+                RunningComp[compid].OnDeck[4].Rerun = matcheslist[3].Rerun;
+                RunningComp[compid].OnDeck[5].Rerun = matcheslist[4].Rerun;
+                RunningComp[compid].OnDeck[6].Rerun = matcheslist[5].Rerun;
+                RunningComp[compid].OnDeck[1].Test = matcheslist[0].Test;
+                RunningComp[compid].OnDeck[2].Test = matcheslist[1].Test;
+                RunningComp[compid].OnDeck[3].Test = matcheslist[2].Test;
+                RunningComp[compid].OnDeck[4].Test = matcheslist[3].Test;
+                RunningComp[compid].OnDeck[5].Test = matcheslist[4].Test;
+                RunningComp[compid].OnDeck[6].Test = matcheslist[5].Test;
+                RunningComp[compid].OnDeck[1].Round = matcheslist[0].Round;
+                RunningComp[compid].OnDeck[2].Round = matcheslist[1].Round;
+                RunningComp[compid].OnDeck[3].Round = matcheslist[2].Round;
+                RunningComp[compid].OnDeck[4].Round = matcheslist[3].Round;
+                RunningComp[compid].OnDeck[5].Round = matcheslist[4].Round;
+                RunningComp[compid].OnDeck[6].Round = matcheslist[5].Round;
+                if (RunningComp[compid].OnDeck[1].TeamNumber.Contains("-"))
+                {
+                    var FieldsQuery1 = RunningComp[compid].OnDeck[1].TeamNumber.Split("-");
+                    RunningComp[compid].OnDeck[1].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
+                }
+                if (RunningComp[compid].OnDeck[2].TeamNumber.Contains("-"))
+                {
+                    var FieldsQuery1 = RunningComp[compid].OnDeck[2].TeamNumber.Split("-");
+                    RunningComp[compid].OnDeck[2].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
+                }
+                if (RunningComp[compid].OnDeck[3].TeamNumber.Contains("-"))
+                {
+                    var FieldsQuery1 = RunningComp[compid].OnDeck[3].TeamNumber.Split("-");
+                    RunningComp[compid].OnDeck[3].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
+                }
+                if (RunningComp[compid].OnDeck[4].TeamNumber.Contains("-"))
+                {
+                    var FieldsQuery1 = RunningComp[compid].OnDeck[4].TeamNumber.Split("-");
+                    RunningComp[compid].OnDeck[4].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
+                }
+                if (RunningComp[compid].OnDeck[5].TeamNumber.Contains("-"))
+                {
+                    var FieldsQuery1 = RunningComp[compid].OnDeck[5].TeamNumber.Split("-");
+                    RunningComp[compid].OnDeck[5].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
+                }
+                if (RunningComp[compid].OnDeck[6].TeamNumber.Contains("-"))
+                {
+                    var FieldsQuery1 = RunningComp[compid].OnDeck[6].TeamNumber.Split("-");
+                    RunningComp[compid].OnDeck[6].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
+                }
             }
-            if (OnDeck[2].TeamNumber.Contains("-"))
-            {
-                var FieldsQuery1 = OnDeck[2].TeamNumber.Split("-");
-                OnDeck[2].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
-            }
-            if (OnDeck[3].TeamNumber.Contains("-"))
-            {
-                var FieldsQuery1 = OnDeck[3].TeamNumber.Split("-");
-                OnDeck[3].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
-            }
-            if (OnDeck[4].TeamNumber.Contains("-"))
-            {
-                var FieldsQuery1 = OnDeck[4].TeamNumber.Split("-");
-                OnDeck[4].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
-            }
-            if (OnDeck[5].TeamNumber.Contains("-"))
-            {
-                var FieldsQuery1 = OnDeck[5].TeamNumber.Split("-");
-                OnDeck[5].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
-            }
-            if (OnDeck[6].TeamNumber.Contains("-"))
-            {
-                var FieldsQuery1 = OnDeck[6].TeamNumber.Split("-");
-                OnDeck[6].TeamID = (from x in db.StudentTeams where x.TeamNumberBranch.ToString() == FieldsQuery1[0] && x.TeamNumberSpecific.ToString() == FieldsQuery1[1] select x).FirstOrDefault().TeamID;
-            }
+            
         }
         public async System.Threading.Tasks.Task UpdateUserRoleAsync(string UserName, string RoleName)
         {
@@ -651,31 +672,35 @@ namespace RobofestWTECore
             var TeamID = (from t in db.StudentTeams where t.TeamNumberBranch.ToString() == teamnumbereach[0] && t.TeamNumberSpecific.ToString() == teamnumbereach[1] select t).FirstOrDefault();
             Clients.All.SendAsync("sendJudgesToPage", TeamID.TeamID);
         }
-        public void EV3Connection(int fieldNum)
+        public void EV3Connection(int fieldNum, int compid)
         {
-            Fields[fieldNum].FieldConnectionID = Context.ConnectionId;
+            //ADDTOPAGH
+            RunningComp[compid].Fields[fieldNum].FieldConnectionID = Context.ConnectionId;
             Clients.Client(Context.ConnectionId).SendAsync("ev3ConnectionSuccessful");
         }
-        public void JudgeClientConnection()
+        public void JudgeClientConnection(int compid)
         {
-            int[] TeamIDs = { OnDeck[1].TeamID, OnDeck[2].TeamID, OnDeck[3].TeamID, OnDeck[4].TeamID, OnDeck[5].TeamID, OnDeck[6].TeamID };
-            string[] TeamNumbers = { OnDeck[1].TeamNumber, OnDeck[2].TeamNumber, OnDeck[3].TeamNumber, OnDeck[4].TeamNumber, OnDeck[5].TeamNumber, OnDeck[6].TeamNumber };
-            int[] Rounds = { OnDeck[1].Round, OnDeck[2].Round, OnDeck[3].Round, OnDeck[4].Round, OnDeck[5].Round, OnDeck[6].Round };
-            bool[] Reruns = { OnDeck[1].Rerun, OnDeck[2].Rerun, OnDeck[3].Rerun, OnDeck[4].Rerun, OnDeck[5].Rerun, OnDeck[6].Rerun };
-            bool[] Tests = { OnDeck[1].Test, OnDeck[2].Test, OnDeck[3].Test, OnDeck[4].Test, OnDeck[5].Test, OnDeck[6].Test };
+            //ADDTOPAGE
+            int[] TeamIDs = { RunningComp[compid].OnDeck[1].TeamID, RunningComp[compid].OnDeck[2].TeamID, RunningComp[compid].OnDeck[3].TeamID, RunningComp[compid].OnDeck[4].TeamID, RunningComp[compid].OnDeck[5].TeamID, RunningComp[compid].OnDeck[6].TeamID };
+            string[] TeamNumbers = { RunningComp[compid].OnDeck[1].TeamNumber, RunningComp[compid].OnDeck[2].TeamNumber, RunningComp[compid].OnDeck[3].TeamNumber, RunningComp[compid].OnDeck[4].TeamNumber, RunningComp[compid].OnDeck[5].TeamNumber, RunningComp[compid].OnDeck[6].TeamNumber };
+            int[] Rounds = { RunningComp[compid].OnDeck[1].Round, RunningComp[compid].OnDeck[2].Round, RunningComp[compid].OnDeck[3].Round, RunningComp[compid].OnDeck[4].Round, RunningComp[compid].OnDeck[5].Round, RunningComp[compid].OnDeck[6].Round };
+            bool[] Reruns = { RunningComp[compid].OnDeck[1].Rerun, RunningComp[compid].OnDeck[2].Rerun, RunningComp[compid].OnDeck[3].Rerun, RunningComp[compid].OnDeck[4].Rerun, RunningComp[compid].OnDeck[5].Rerun, RunningComp[compid].OnDeck[6].Rerun };
+            bool[] Tests = { RunningComp[compid].OnDeck[1].Test, RunningComp[compid].OnDeck[2].Test, RunningComp[compid].OnDeck[3].Test, RunningComp[compid].OnDeck[4].Test, RunningComp[compid].OnDeck[5].Test, RunningComp[compid].OnDeck[6].Test };
             var competition = (from c in db.Competitions where c.CompID == 1 select c).FirstOrDefault();
             bool[] validate = { competition.validmatch1, competition.validmatch2, competition.validmatch3, competition.validmatch4, competition.validmatch5, competition.validmatch6 };
             Clients.Client(Context.ConnectionId).SendAsync("fieldDefaults", TeamIDs, TeamNumbers, Rounds, Reruns, Tests, validate);
             Clients.Client(Context.ConnectionId).SendAsync("changeJudgeLock", JudgesLocked);
         }
-        public void ScoreKeeperStatusSet(int status)
+        public void ScoreKeeperStatusSet(int status, int compid)
         {
-            ScorekeeperStatus = status;
+            //ADDTOPAGE
+            RunningComp[compid].ScorekeeperStatus = status;
             Clients.All.SendAsync("scorekeeperStatus", ScorekeeperStatus);
         }
-        public void LockJudges(bool AllowStatus)
+        public void LockJudges(bool AllowStatus, int compid)
         {
-            JudgesLocked = AllowStatus;
+            //ADDTOPAGE
+            RunningComp[compid].JudgesLocked = AllowStatus;
             Clients.All.SendAsync("changeJudgeLock", JudgesLocked);
         }
         public void ConfirmFieldCompletion(int Zone)
@@ -687,14 +712,15 @@ namespace RobofestWTECore
             Clients.All.SendAsync("currentZone", Zone);
 
         }
-        public void GetFieldData()
+        public void GetFieldData(int compid)
         {
-            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 1, Fields[1].Status, 0, Fields[1].TeamNumber, true, true, "");
-            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 2, Fields[2].Status, 0, Fields[2].TeamNumber, true, true, "");
-            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 3, Fields[3].Status, 0, Fields[3].TeamNumber, true, true, "");
-            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 4, Fields[4].Status, 0, Fields[4].TeamNumber, true, true, "");
-            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 5, Fields[5].Status, 0, Fields[5].TeamNumber, true, true, "");
-            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 6, Fields[6].Status, 0, Fields[6].TeamNumber, true, true, "");
+            //ADDTOPAGE
+            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 1, RunningComp[compid].Fields[1].Status, 0, RunningComp[compid].Fields[1].TeamNumber, true, true, "");
+            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 2, RunningComp[compid].Fields[2].Status, 0, RunningComp[compid].Fields[2].TeamNumber, true, true, "");
+            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 3, RunningComp[compid].Fields[3].Status, 0, RunningComp[compid].Fields[3].TeamNumber, true, true, "");
+            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 4, RunningComp[compid].Fields[4].Status, 0, RunningComp[compid].Fields[4].TeamNumber, true, true, "");
+            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 5, RunningComp[compid].Fields[5].Status, 0, RunningComp[compid].Fields[5].TeamNumber, true, true, "");
+            Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 6, RunningComp[compid].Fields[6].Status, 0, RunningComp[compid].Fields[6].TeamNumber, true, true, "");
         }
         public async Task AppLogin(string UserName, string Password)
         {

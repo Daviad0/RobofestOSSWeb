@@ -1611,7 +1611,8 @@
         var allmatches = [];
         var selectedmatches = [];
         // Reference the auto-generated proxy for the hub.
-        var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+        const chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+        chat.serverTimeoutInMilliseconds = 10000000;
         // Create a function that the hub can call back to display messages.
         function CheckboxSelect() {
             if (this.checked) {

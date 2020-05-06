@@ -17,6 +17,7 @@ using Serilog;
 using Microsoft.Extensions.Logging;
 using Serilog.Formatting.Json;
 using System.Net;
+using System;
 
 namespace RobofestWTECore
 {
@@ -50,7 +51,10 @@ namespace RobofestWTECore
                     .AddDefaultTokenProviders()
                     .AddEntityFrameworkStores<ApplicationDbContext>();
             
-            services.AddSignalR();
+            services.AddSignalR(hubOptions => {
+                hubOptions.KeepAliveInterval = TimeSpan.FromMinutes(30);
+                hubOptions.EnableDetailedErrors = true;
+            });
             services.AddSingleton<Controller, TeamController>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.Configure<RazorViewEngineOptions>(options => {

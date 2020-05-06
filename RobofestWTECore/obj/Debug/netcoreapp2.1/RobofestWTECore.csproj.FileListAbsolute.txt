@@ -9,9 +9,6 @@ C:\Users\djree\source\repos\RobofestOSS\RobofestOSSWeb\RobofestWTECore\bin\Debug
 C:\Users\djree\source\repos\RobofestOSS\RobofestOSSWeb\RobofestWTECore\bin\Debug\netcoreapp2.1\wwwroot\images\banner1.svg
 C:\Users\djree\source\repos\RobofestOSS\RobofestOSSWeb\RobofestWTECore\bin\Debug\netcoreapp2.1\wwwroot\images\banner2.svg
 C:\Users\djree\source\repos\RobofestOSS\RobofestOSSWeb\RobofestWTECore\bin\Debug\netcoreapp2.1\wwwroot\images\banner3.svg
-C:\Users\djree\source\repos\RobofestOSS\RobofestOSSWeb\RobofestWTECore\bin\Debug\netcoreapp2.1\wwwroot\images\BottleNegative.png
-C:\Users\djree\source\repos\RobofestOSS\RobofestOSSWeb\RobofestWTECore\bin\Debug\netcoreapp2.1\wwwroot\images\BottlePositive.png
-C:\Users\djree\source\repos\RobofestOSS\RobofestOSSWeb\RobofestWTECore\bin\Debug\netcoreapp2.1\wwwroot\images\BottleRegular.png
 C:\Users\djree\source\repos\RobofestOSS\RobofestOSSWeb\RobofestWTECore\bin\Debug\netcoreapp2.1\wwwroot\images\InvalidBalls.png
 C:\Users\djree\source\repos\RobofestOSS\RobofestOSSWeb\RobofestWTECore\bin\Debug\netcoreapp2.1\wwwroot\images\robofest_words_transparent.png
 C:\Users\djree\source\repos\RobofestOSS\RobofestOSSWeb\RobofestWTECore\bin\Debug\netcoreapp2.1\wwwroot\js\site.js

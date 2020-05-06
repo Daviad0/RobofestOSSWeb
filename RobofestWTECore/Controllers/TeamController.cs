@@ -248,13 +248,13 @@ namespace RobofestWTECore.Controllers
             
 
         }
-        public ActionResult Index()
+        public ActionResult Index(int id)
         {
 
 
                 var TeamDataModelList = new List<TeamDataModel>();
                 int i = 0;
-                foreach (var s in db.StudentTeams.ToList())
+                foreach (var s in db.StudentTeams.Where(x => x.CompID == id).ToList())
                 {
                     i++;
                     var TeamData = db.StudentTeams.Find(s.TeamID);
@@ -307,7 +307,7 @@ namespace RobofestWTECore.Controllers
                 var Competition = (from a in db.Competitions where a.CompID == id select a).FirstOrDefault();
                 MatchDataModel.RunningFields = Competition.RunningFields;
                 int i = 0;
-                foreach (var s in db.StudentTeams.ToList())
+                foreach (var s in db.StudentTeams.Where(x => x.CompID == id).ToList())
                 {
                     var StudentTeam = new StudentTeam();
                     i++;
@@ -358,7 +358,7 @@ namespace RobofestWTECore.Controllers
             CompetitionPageModel.validmatches[5] = Competition.validmatch6;
             int sitem = 0;
 
-            foreach (var s in db.StudentTeams.ToList())
+            foreach (var s in db.StudentTeams.Where(x => x.CompID == id).ToList())
             {
                 var TeamData = db.StudentTeams.Find(s.TeamID);
                 var Round1 = (from a in db.RoundEntries where a.TeamID == s.TeamID && a.Round == 1 && a.Usable == true orderby DateTime.Parse(a.TimeStamp) select a).FirstOrDefault();
@@ -525,15 +525,15 @@ namespace RobofestWTECore.Controllers
         public ActionResult TeamMatches(int id)
         {
             var MatchDataModel = new TeamMatchDataModel();
-            MatchDataModel.NumFields = db.Competitions.Where(a => a.CompID == 1).FirstOrDefault().RunningFields;
-            var Matches = (from m in db.TeamMatches where m.CompID == 1 select m).ToList();
+            MatchDataModel.NumFields = db.Competitions.Where(a => a.CompID == id).FirstOrDefault().RunningFields;
+            var Matches = (from m in db.TeamMatches where m.CompID == id select m).ToList();
             MatchDataModel.Matches = Matches;
 
             return View(MatchDataModel);
         }
         public ActionResult TeamMatchesEdit(int id)
         {
-            var Matches = (from m in db.TeamMatches where m.CompID == 1 select m).ToList();
+            var Matches = (from m in db.TeamMatches where m.CompID == id select m).ToList();
 
             return View(Matches);
         }
@@ -573,11 +573,11 @@ namespace RobofestWTECore.Controllers
             return View();
 
         }
-        public ActionResult RawLeaderboard()
+        public ActionResult RawLeaderboard(int id)
         {
             _logger.LogInformation("Test 1");
             var ranklist = new List<ReturnRank>();
-            foreach (var team in db.StudentTeams.Where(x => x.CompID == 1))
+            foreach (var team in db.StudentTeams.Where(x => x.CompID == id))
             {
                 var teamtoadd = new ReturnRank();
                 teamtoadd.TeamNumber = team.TeamNumberBranch.ToString() + "-" + team.TeamNumberSpecific.ToString();
@@ -662,11 +662,11 @@ namespace RobofestWTECore.Controllers
             }
             
         }
-        public ActionResult RawSchedule()
+        public ActionResult RawSchedule(int id)
         {
             var schedulelist = new List<RawScheduleItem>();
             int i = 0;
-            foreach(var item in db.TeamMatches.Where(x => x.CompID == 1).OrderBy(x => x.MatchID).ThenBy(x => x.MatchID))
+            foreach(var item in db.TeamMatches.Where(x => x.CompID == id).OrderBy(x => x.MatchID).ThenBy(x => x.MatchID))
             {
                 i++;
                 var scheduleitem = new RawScheduleItem();
@@ -695,6 +695,24 @@ namespace RobofestWTECore.Controllers
                 schedulelist.Add(scheduleitem);
             }
             var json = JsonConvert.SerializeObject(schedulelist);
+            return Content(json);
+        }
+        public ActionResult RawCompetitions()
+        {
+            var CompetitionList = new List<CompetitionPassModel>();
+            var CompDBList = db.Competitions.OrderBy(x => x.Date).ToList();
+            foreach(var item in CompDBList)
+            {
+                var comptoadd = new CompetitionPassModel();
+                comptoadd.CompID = item.CompID;
+                comptoadd.Date = item.Date;
+                comptoadd.Location = item.Location;
+                comptoadd.RunningState = item.RunningState;
+                comptoadd.SetUp = true;
+                
+                CompetitionList.Add(comptoadd);
+            }
+            var json = JsonConvert.SerializeObject(CompetitionList);
             return Content(json);
         }
 
