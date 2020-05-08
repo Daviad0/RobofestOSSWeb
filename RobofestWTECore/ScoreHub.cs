@@ -289,6 +289,8 @@ namespace RobofestWTECore
         }
         public async Task ChangeMatches(string jsonrequired, int fields, int compid)
         {
+            //PKs need to be generated from a GUID, not from a consecutive number
+            //ORDER should be the sorting method for all entries from now on.
             var CompetitionFields = (from d in db.Competitions where d.CompID == compid select d).FirstOrDefault();
             CompetitionFields.RunningFields = fields;
             db.Competitions.Update(CompetitionFields);
