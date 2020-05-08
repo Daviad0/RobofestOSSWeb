@@ -77,7 +77,7 @@
     var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
     var i = 0;
     var reloads = 0;
-    var compid = 1;
+    var compid = @ViewBag.CompID;
     //CHANGEPAGE
     chat.on("reloadRequired", function () {
         reloads += 1

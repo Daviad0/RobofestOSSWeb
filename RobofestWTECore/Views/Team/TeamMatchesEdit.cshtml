@@ -52,7 +52,7 @@
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script>
     var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
-    var compid = 1;
+    var compid = @ViewBag.CompID;
     chat.on("reloadRequired", function () {
         location.reload(true);
     });

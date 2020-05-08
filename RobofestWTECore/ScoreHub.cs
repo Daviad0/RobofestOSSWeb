@@ -42,7 +42,7 @@ namespace RobofestWTECore
             };
         private static int ScorekeeperStatus;
         private static bool JudgesLocked = true;
-        private static Dictionary<int, StaticCompetition> RunningComp;
+        private static Dictionary<int, StaticCompetition> RunningComp = new Dictionary<int, StaticCompetition>();
         private static string appSessionID = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
         private static Dictionary<string, RoAuthUser> appAuthUsers = new Dictionary<string, RoAuthUser>();
         private static Dictionary<int, List<String>> compGroups = new Dictionary<int, List<string>>();
@@ -66,6 +66,7 @@ namespace RobofestWTECore
             }
             else
             {
+                await RegisterCompetitionAsActive(CompID);
                 compGroups.Add(CompID, new List<String>());
                 compGroups[CompID].Add(Context.ConnectionId);
             }
@@ -303,7 +304,7 @@ namespace RobofestWTECore
         public async Task SendAllMatches(int fields, int compid)
         {
             var teammatchlist = new List<TeamMatchCondensed>();
-            var rawdblist = db.TeamMatches.Where(x => x.CompID == 1).OrderBy(x => x.MatchID).ThenBy(x => x.Order).ToList();
+            var rawdblist = db.TeamMatches.Where(x => x.CompID == compid).OrderBy(x => x.MatchID).ThenBy(x => x.Order).ToList();
             foreach(var item in rawdblist)
             {
                 var newteammatch = new TeamMatchCondensed();
@@ -581,6 +582,7 @@ namespace RobofestWTECore
         }
         public void MatchMaker(string json, int compid)
         {
+            //FIX
             if (RunningComp.ContainsKey(compid))
             {
                 var matcheslist = JsonConvert.DeserializeObject<List<ScheduleItem>>(json);
@@ -705,8 +707,9 @@ namespace RobofestWTECore
         }
         public void ScoreKeeperStatusSet(int status, int compid)
         {
+            //FIX
             RunningComp[compid].ScorekeeperStatus = status;
-            Clients.Clients(compGroups[compid]).SendAsync("scorekeeperStatus", ScorekeeperStatus);
+            Clients.Clients(compGroups[compid]).SendAsync("scorekeeperStatus", RunningComp[compid].ScorekeeperStatus);
         }
         public void LockJudges(bool AllowStatus, int compid)
         {

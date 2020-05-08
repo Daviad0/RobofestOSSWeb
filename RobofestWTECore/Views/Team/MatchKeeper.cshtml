@@ -2477,7 +2477,7 @@
                 abort = true;
                 timer = false;
                 $(".timerstatus").css("color", "black");
-                chat.invoke("sendTimer",minutesc, secondsc, message, 0);
+                chat.invoke("sendTimer",minutesc, secondsc, message, 0, compid);
                 confirmstoptimer = 0;
                 $('#starttimer').attr("hidden", false);
                 $('#stoptimer').attr("hidden", false);
@@ -2613,7 +2613,7 @@
                 initseconds = (minutess) + (secondss * 60);
                 minutesc = minutess;
                 secondsc = secondss;
-                chat.invoke("sendTimer", minutess, secondss, message, , compid);
+                chat.invoke("sendTimer", minutess, secondss, message, 0, compid);
                 setTimeout(RemoveCoolEffect, 600);
             }
             function RemoveCoolEffect() {

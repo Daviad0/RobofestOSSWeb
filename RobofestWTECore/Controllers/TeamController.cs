@@ -530,13 +530,13 @@ namespace RobofestWTECore.Controllers
             MatchDataModel.NumFields = db.Competitions.Where(a => a.CompID == id).FirstOrDefault().RunningFields;
             var Matches = (from m in db.TeamMatches where m.CompID == id select m).ToList();
             MatchDataModel.Matches = Matches;
-
+            ViewBag.CompID = id;
             return View(MatchDataModel);
         }
         public ActionResult TeamMatchesEdit(int id)
         {
             var Matches = (from m in db.TeamMatches where m.CompID == id select m).ToList();
-
+            ViewBag.CompID = id;
             return View(Matches);
         }
 
