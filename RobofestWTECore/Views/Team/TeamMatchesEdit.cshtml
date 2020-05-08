@@ -52,6 +52,7 @@
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script>
     var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+    var compid = 1;
     chat.on("reloadRequired", function () {
         location.reload(true);
     });
@@ -61,24 +62,24 @@
         }
         $(".completed").on("click", function () {
             var matchid = parseInt($(this).attr("id"))
-            chat.invoke("editSpecificSchedule", matchid, "completed");
+            chat.invoke("editSpecificSchedule", matchid, "completed", compid);
         });
         $(".testmatch").on("click", function () {
             var matchid = parseInt($(this).attr("id"))
-            chat.invoke("editSpecificSchedule", matchid, "testmatch");
+            chat.invoke("editSpecificSchedule", matchid, "testmatch", compid);
         });
         $(".rerun").on("click", function () {
             var matchid = parseInt($(this).attr("id"))
-            chat.invoke("editSpecificSchedule", matchid, "rerun");
+            chat.invoke("editSpecificSchedule", matchid, "rerun", compid);
         });
         $("#autofill").on("click", function () {
-            chat.invoke("autoComplete");
+            chat.invoke("autoComplete", compid);
         });
         $("#everythingc").on("click", function () {
-            chat.invoke("completeAll", true);
+            chat.invoke("completeAll", true, compid);
         });
         $("#nothingc").on("click", function () {
-            chat.invoke("completeAll", false);
+            chat.invoke("completeAll", false, compid);
         });
     
     

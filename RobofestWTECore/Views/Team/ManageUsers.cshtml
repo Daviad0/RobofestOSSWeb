@@ -171,61 +171,62 @@
     $(function () {
         // Reference the auto-generated proxy for the hub.
         var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+        var compid = 1;
         chat.on("reloadUsers", function (field, helping) {
             location.reload(true);
         });
         chat.start().then(function () {
             $(".judge").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Judge");
+                chat.invoke("updateUserRoleAsync", username, "Judge", compid);
             });
             $(".manager").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Manager");
+                chat.invoke("updateUserRoleAsync", username, "Manager", compid);
             });
             $(".fieldstaff").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "FieldStaff");
+                chat.invoke("updateUserRoleAsync", username, "FieldStaff", compid);
             });
             $(".admin").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Admin");
+                chat.invoke("updateUserRoleAsync", username, "Admin", compid);
             });
             $(".tech").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Tech");
+                chat.invoke("updateUserRoleAsync", username, "Tech", compid);
             });
             $(".banned").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Locked");
+                chat.invoke("updateUserRoleAsync", username, "Locked", compid);
             });
             $(".field1a").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Field1");
+                chat.invoke("updateUserRoleAsync", username, "Field1", compid);
             });
             $(".field2a").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Field2");
+                chat.invoke("updateUserRoleAsync", username, "Field2", compid);
             });
             $(".field3a").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Field3");
+                chat.invoke("updateUserRoleAsync", username, "Field3", compid);
             });
             $(".field4a").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Field4");
+                chat.invoke("updateUserRoleAsync", username, "Field4", compid);
             });
             $(".field5a").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Field5");
+                chat.invoke("updateUserRoleAsync", username, "Field5", compid);
             });
             $(".field6a").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Field6");
+                chat.invoke("updateUserRoleAsync", username, "Field6", compid);
             });
             $(".fieldaa").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "AllFields");
+                chat.invoke("updateUserRoleAsync", username, "AllFields", compid);
             });
 
         });

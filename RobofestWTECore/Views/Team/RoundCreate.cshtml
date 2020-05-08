@@ -1028,6 +1028,7 @@
         var judgelocked = true;
         var requesttostart = false;
         var testmatchfinal = false;
+        var compid = @ViewBag.CompID;
         // Reference the auto-generated proxy for the hub.
         var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
         var defaultfields = [[0,"0", 1, false, false],[0,"0",1, false, false],[0,"0",1, false, false],[0,"0",1, false, false],[0,"0",1, false, false],[0,"0",1, false, false]]
@@ -1146,8 +1147,8 @@
                     $("#fieldn").attr("readonly", "readonly");
                     $("#fieldstatus").html(fieldsub)
                     $("#teamnumber").attr("readonly", "readonly");
-                    chat.invoke("initField", fieldsub, 1, totalscore, teamnumber, checkingscore, false, "0/0/0/0/0^0/0/0/0^0/0^0/0");
-                    chat.invoke("teamSelected", $("#lookupteam").val(), fieldsub, round);
+                    chat.invoke("initField", fieldsub, 1, totalscore, teamnumber, checkingscore, false, "0/0/0/0/0^0/0/0/0^0/0^0/0", compid);
+                    chat.invoke("teamSelected", $("#lookupteam").val(), fieldsub, round, compid);
                     $("#fieldissue").text("");
                     $("#lockin").attr("hidden", true);
                     $("#afterlockin").attr("hidden", false);
@@ -1249,39 +1250,39 @@
                 var message = $("#usermessage").val();
                 var sender = "Field " + fieldsub + " (Judge)"
                 var issue = $("#userissue").is(":checked");
-                chat.invoke("sendMessage",message, issue, sender)
+                chat.invoke("sendMessage",message, issue, sender, compid)
                 $("#usermessage").val("");
             });
             $("#disablescoreupdate").click(function () {
                 checkingscore = false;
-                chat.invoke("initField",fieldsub, 5, totalscore, teamnumber, checkingscore, false);
+                chat.invoke("initField",fieldsub, 5, totalscore, teamnumber, checkingscore, false, compid);
                 $("#currentscorestatus").html("Score Updating Disabled!");
             });
             $("#lookupteam").change(function () {
-                chat.invoke("lookUpTeam",parseFloat($("#lookupteam").val()));
+                chat.invoke("lookUpTeam",parseFloat($("#lookupteam").val()), compid);
             });
             $("#emergencyhelp").click(function () {
                 if (emergency == false) {
                     $("#emergencyhelp").addClass("judgehelp");
                     $("#emergencyhelp").css("background-color", "yellow");
-                    chat.invoke("sendMessage", "Help Requested from Field " + fieldsub + "!!", true, "Field " + fieldsub + " (Server)")
-                    chat.invoke("judgeHelp",fieldsub, true);
+                    chat.invoke("sendMessage", "Help Requested from Field " + fieldsub + "!!", true, "Field " + fieldsub + " (Server)", compid)
+                    chat.invoke("judgeHelp",fieldsub, true, compid);
                     emergency = true;
                 } else {
                     $("#emergencyhelp").removeClass("judgehelp");
                     $("#emergencyhelp").css("background-color", "");
-                    chat.invoke("judgeHelp",fieldsub, false);
+                    chat.invoke("judgeHelp",fieldsub, false, compid);
                     emergency = false;
                 }
             });
             function PongBack(direction) {
                 if (direction == 7 || direction == fieldsub) {
-                    chat.invoke("pong", fieldsub, CurrentJudge);
+                    chat.invoke("pong", fieldsub, CurrentJudge, compid);
                 }
             }
             var pongback = setInterval(function () {
                 if (pong == true) {
-                    chat.invoke("pong", fieldsub, CurrentJudge);
+                    chat.invoke("pong", fieldsub, CurrentJudge, compid);
                 }
             }, 100);
             $("#enablescoreupdate").click(function () {
@@ -1289,8 +1290,9 @@
                 $("#currentscorestatus").html("Score Updating Enabled!");
             });
             $(document).ready(function () {
-                chat.invoke("lookUpTeam", parseFloat($("#lookupteam").val()));
-                chat.invoke("judgeClientConnection");
+                chat.invoke("lookUpTeam", parseFloat($("#lookupteam").val()), compid);
+                chat.invoke("judgeClientConnection", compid);
+                chat.invoke("initializeClient", compid);
             });
             $("#overlaybutton").click(function () {
                 requesttostart = true;
@@ -1320,8 +1322,8 @@
                         $("#fieldn").attr("readonly", "readonly");
                         $("#fieldstatus").html(fieldsub)
                         $("#teamnumber").attr("readonly", "readonly");
-                        chat.invoke("initField", fieldsub, 1, totalscore, teamnumber, checkingscore, false, "0/0/0/0/0^0/0/0/0^0/0^0/0");
-                        chat.invoke("teamSelected", $("#lookupteam").val(), fieldsub, round);
+                        chat.invoke("initField", fieldsub, 1, totalscore, teamnumber, checkingscore, false, "0/0/0/0/0^0/0/0/0^0/0^0/0", compid);
+                        chat.invoke("teamSelected", $("#lookupteam").val(), fieldsub, round, compid);
                         $("#fieldissue").text("");
                         $("#lockin").attr("hidden", true);
                         $("#afterlockin").attr("hidden", false);
@@ -1384,7 +1386,7 @@
             });
             $("#readystatus").click(function () {
                 if (lockedin == true) {
-                    chat.invoke("initField", fieldsub, 2, totalscore, teamnumber, checkingscore, false, "0/0/0/0/0^0/0/0/0^0/0^0/0");
+                    chat.invoke("initField", fieldsub, 2, totalscore, teamnumber, checkingscore, false, "0/0/0/0/0^0/0/0/0^0/0^0/0", compid);
                     $("#fieldissue").text("");
                     $("#notreadystatus").css("font-weight", "normal");
                     $("#readystatus").css("font-weight", "bold");
@@ -1401,7 +1403,7 @@
             });
             $("#notreadystatus").click(function () {
                 if (lockedin == true) {
-                    chat.invoke("initField", fieldsub, 1, totalscore, teamnumber, checkingscore, false, "0/0/0/0/0^0/0/0/0^0/0^0/0");
+                    chat.invoke("initField", fieldsub, 1, totalscore, teamnumber, checkingscore, false, "0/0/0/0/0^0/0/0/0^0/0^0/0", compid);
                     $("#fieldissue").text("");
                     $("#notreadystatus").css("font-weight", "bold");
                     $("#readystatus").css("font-weight", "normal");
@@ -1506,7 +1508,7 @@
                     if (datatosend == "") {
                         datatosend = "0/0/0/0/0^0/0/0/0^0/0^0/0";
                     }
-                    chat.invoke("initField", fieldsub, 5, totalscore, teamnumber, checkingscore, false, datatosend);
+                    chat.invoke("initField", fieldsub, 5, totalscore, teamnumber, checkingscore, false, datatosend, compid);
                     //USE 5 FOR NO CHANGE
                 }
             }, 500);

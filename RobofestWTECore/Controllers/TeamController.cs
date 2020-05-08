@@ -486,6 +486,7 @@ namespace RobofestWTECore.Controllers
         {
             var Model = new RoundEntryViewModel();
             var RoundEntry = new RoundEntry();
+            var team = (from d in db.StudentTeams where d.TeamID == id select d).FirstOrDefault();
             RoundEntry.TeamID = id;
             var RoundsCompleted = (from a in db.RoundEntries where a.TeamID == id select a);
             bool R1 = false;
@@ -509,6 +510,7 @@ namespace RobofestWTECore.Controllers
             RoundEntry.Rerun = Rerun;
             RoundEntry.Usable = true;
             Model.RoundEntryCreated = RoundEntry;
+            ViewBag.CompID = team.CompID;
             Model.UserName = userManager.GetUserName(User);
             
             return View(RoundEntry);

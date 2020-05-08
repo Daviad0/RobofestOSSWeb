@@ -779,6 +779,7 @@
         var fieldarray = [0, 0, 0, 0, 0, 0];
         var fieldconnected = [false, false, false, false, false, false]
         var initsec = 0;
+        var compid = @Model.CompData.CompID;
         // Reference the auto-generated proxy for the hub.
         var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
         // Create a function that the hub can call back to display messages.
@@ -1106,7 +1107,8 @@
         // Start the connection.
         chat.start().then(function () {
             $(document).ready(function () {
-                chat.invoke("getFieldData");
+                chat.invoke("getFieldData", compid);
+                chat.invoke("initializeClient", compid);
             });
             function checkPongs() {
                 if (fieldconnected[0] == true) {
@@ -1157,7 +1159,7 @@
             }
             function pingTeams() {
                 $("#ping").html("1");
-                chat.invoke("pingField", 7);
+                chat.invoke("pingField", 7, compid);
                 setTimeout(checkPongs, 5000);
 
             }

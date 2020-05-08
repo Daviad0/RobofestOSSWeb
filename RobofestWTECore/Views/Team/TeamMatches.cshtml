@@ -77,6 +77,8 @@
     var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
     var i = 0;
     var reloads = 0;
+    var compid = 1;
+    //CHANGEPAGE
     chat.on("reloadRequired", function () {
         reloads += 1
         if (reloads >= i) {
@@ -90,9 +92,9 @@
         $(document).on('click', '#listallteams', function () {
             chat.on("addMatches", function () {
                 var numfields = parseInt($("#numberoffields").val())
-                chat.invoke("sendAllMatches", numfields);
+                chat.invoke("sendAllMatches", numfields, compid);
             });
-            chat.invoke("clearSchedule");
+            chat.invoke("clearSchedule", compid);
             $(".matchentry").each(function () {
                 i += 1;
                 var localid = this.id
@@ -110,7 +112,7 @@
                 schedule.Completed = $("#" + localid + "-completed").is(":checked");
                 scheduler.schedules.push(schedule);
                 completedschedule = JSON.stringify(schedule);
-                chat.invoke("changeMatches", completedschedule, numfields);
+                chat.invoke("changeMatches", completedschedule, numfields, compid);
             });
             
         });

@@ -336,12 +336,11 @@
         // Start the connection.
         var fieldsub = 0;
         var lockedin = false;
-            
-            $("#checkvalid").click(function () {
-                chat.invoke("checkIfValid", currentmatch);
-            });
-            $(document).ready(function () {
-                chat.invoke("selectThisMatch", 1);
+
+
+
+        $(document).ready(function () {
+
             });
             $(".roundbutton1").click(function () {
                 $("#submitteams").attr("hidden", false);
@@ -363,14 +362,7 @@
                 var teamid5 = $("#field5selection").val();
                 var teamid6 = $("#field6selection").val();
                 $("#teamsubmissionstatus").html("[" + teamid1 + ", " + teamid2 + ", " + teamid3 + ", " + teamid4 + ", " + teamid5 + ", " + teamid6 + "] selected for judges!")
-                chat.invoke("matchMaker", teamid1, teamid2, teamid3, teamid4, teamid5, teamid6, 1, publicround, matchesvalid[0],matchesvalid[1],matchesvalid[2],matchesvalid[3],matchesvalid[4],matchesvalid[5]);
-            });
-            $("#sendchat").click(function () {
-                var message = $("#usermessage").val();
-                var sender = "Match Manager (Official)"
-                var issue = $("#userissue").is(":checked");
-                chat.invoke("sendMessage", message, issue, sender)
-                $("#usermessage").val("");
+                chat.invoke("matchMaker", teamid1, teamid2, teamid3, teamid4, teamid5, teamid6, 1, publicround, matchesvalid[0],matchesvalid[1],matchesvalid[2],matchesvalid[3],matchesvalid[4],matchesvalid[5], compid);
             });
             $("#matchselector").change(function () {
                 if (oldmatchselected == true) {
@@ -380,14 +372,6 @@
                 var selectedmatch = $(this).children(":selected").val();
                 var matchnumber = selectedmatch.split("-");
                 currentmatch = parseInt(matchnumber[0])
-                chat.invoke("selectThisMatch", parseInt(matchnumber[0]));
-            });
-            $("#broadcastmessage").click(function () {
-                var message = $("#userbroadcastmessage").val();
-                var sender = "Match Manager (Official)";
-                var issue = $("#userbroadcastissue").is(":checked");
-                var volunteersonly = $("#userbroadcaststaff").is(":checked")
-                chat.invoke("sendBroadcast", message, issue, sender, volunteersonly)
             });
             $("#clearchat").click(function () {
                 $(".volunteerchat").empty();
@@ -403,20 +387,11 @@
                 } else {
                     lockedin = true;
                     $("#fieldn").attr("disabled", true);
-                    chat.invoke("initField",fieldsub, 1);
                     $("#fieldissue").text("");
                 }
             });
             $("#stage1").click(function () {
                 chat.invoke("setStage",1);
-            });
-            $("#cancelpanic").click(function () {
-                chat.invoke("judgeHelp",1, false);
-                chat.invoke("judgeHelp",2, false);
-                chat.invoke("judgeHelp",3, false);
-                chat.invoke("judgeHelp",4, false);
-                chat.invoke("judgeHelp",5, false);
-                chat.invoke("judgeHelp",6, false);
             });
             $("#stage2").click(function () {
                 chat.invoke("setStage", 2);
@@ -540,13 +515,11 @@
             });
             $("#readystatus").click(function () {
                 if (lockedin == true) {
-                    chat.invoke("initField",fieldsub, 2);
                     $("#fieldissue").text("");
                 }
             });
             $("#notreadystatus").click(function () {
                 if (lockedin == true) {
-                    chat.invoke("initField",fieldsub, 1);
                     $("#fieldissue").text("");
                 }
             });
@@ -731,7 +704,6 @@
             }
             function pingTeams() {
                 $("#ping").html("1");
-                chat.invoke("pingField",7);
                 setTimeout(checkPongs, 3000);
 
             }

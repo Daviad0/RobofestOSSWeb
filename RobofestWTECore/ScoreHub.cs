@@ -45,6 +45,7 @@ namespace RobofestWTECore
         private static Dictionary<int, StaticCompetition> RunningComp;
         private static string appSessionID = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
         private static Dictionary<string, RoAuthUser> appAuthUsers = new Dictionary<string, RoAuthUser>();
+        private static Dictionary<int, List<String>> compGroups = new Dictionary<int, List<string>>();
         //0 = BUSY, 1 = REVIEWING, 2 = OK
 
 
@@ -57,11 +58,24 @@ namespace RobofestWTECore
             userManager = userManager2;
             roleManager = roleManager2;
         }
+        public async Task InitializeClient(int CompID)
+        {
+            if (compGroups.ContainsKey(CompID))
+            {
+                compGroups[CompID].Add(Context.ConnectionId);
+            }
+            else
+            {
+                compGroups.Add(CompID, new List<String>());
+                compGroups[CompID].Add(Context.ConnectionId);
+            }
+        }
         public async Task RegisterCompetitionAsActive(int CompID)
         {
             var newCompetition = new StaticCompetition();
             if (!RunningComp.ContainsKey(CompID))
             {
+                Groups.AddToGroupAsync(Context.ConnectionId, "Comp" + CompID.ToString());
                 RunningComp.Add(CompID, newCompetition);
             }
             
@@ -263,30 +277,30 @@ namespace RobofestWTECore
             
             
         }
-        public void SendTimer(int minutes, int seconds, string message, int status)
+        public void SendTimer(int minutes, int seconds, string message, int status, int compid)
         {
-            Clients.All.SendAsync("changeGlobalTimer", minutes, seconds, message, status);
+            Clients.Clients(compGroups[compid]).SendAsync("changeGlobalTimer", minutes, seconds, message, status);
             //0 = STOPPED, 1 = RUNNING, 2 = DONE
         }
         public void StartTimer()
         {
             Clients.All.SendAsync("startGlobalTimer");
         }
-        public async Task ChangeMatches(string jsonrequired, int fields)
+        public async Task ChangeMatches(string jsonrequired, int fields, int compid)
         {
-            var CompetitionFields = (from d in db.Competitions where d.CompID == 1 select d).FirstOrDefault();
+            var CompetitionFields = (from d in db.Competitions where d.CompID == compid select d).FirstOrDefault();
             CompetitionFields.RunningFields = fields;
             db.Competitions.Update(CompetitionFields);
             TeamMatch Match = JsonConvert.DeserializeObject<TeamMatch>(jsonrequired);
             await db.TeamMatches.AddAsync(Match);
             await db.SaveChangesAsync();
-            var amountofmatches = db.TeamMatches.Where(t => t.CompID == 1).Count();
+            var amountofmatches = db.TeamMatches.Where(t => t.CompID == compid).Count();
             float matchcountfloat = (float)amountofmatches / (float)CompetitionFields.RunningFields;
             int matchcount = (int)Math.Ceiling(matchcountfloat);
-            await Clients.All.SendAsync("addMatches", matchcount);
-            await Clients.All.SendAsync("reloadRequired");
+            await Clients.Clients(compGroups[compid]).SendAsync("addMatches", matchcount);
+            await Clients.Clients(compGroups[compid]).SendAsync("reloadRequired");
         }
-        public async Task SendAllMatches(int fields)
+        public async Task SendAllMatches(int fields, int compid)
         {
             var teammatchlist = new List<TeamMatchCondensed>();
             var rawdblist = db.TeamMatches.Where(x => x.CompID == 1).OrderBy(x => x.MatchID).ThenBy(x => x.Order).ToList();
@@ -318,11 +332,11 @@ namespace RobofestWTECore
                 }
                 teammatchlist.Add(newteammatch);
             }
-            await Clients.All.SendAsync("allMatches", fields, teammatchlist);
+            await Clients.Clients(compGroups[compid]).SendAsync("allMatches", fields, teammatchlist);
         }
-        public async Task ClearSchedule()
+        public async Task ClearSchedule(int compid)
         {
-            var EverythingToClear = (from m in db.TeamMatches where m.CompID == 1 select m).ToList();
+            var EverythingToClear = (from m in db.TeamMatches where m.CompID == compid select m).ToList();
             foreach (var match in EverythingToClear)
             {
                 db.TeamMatches.Remove(match);
@@ -330,20 +344,21 @@ namespace RobofestWTECore
             }
 
         }
-        public async Task SelectThisMatch(int matchtoselect)
+        public async Task SelectThisMatch(int matchtoselect, int compid)
         {
-            var MatchList = (from m in db.TeamMatches where m.CompID == 1 select m).OrderBy(m => m.MatchID).ThenBy(m => m.Order).ToList();
-            var Competition = (from m in db.Competitions where m.CompID == 1 select m).FirstOrDefault();
+            var MatchList = (from m in db.TeamMatches where m.CompID == compid select m).OrderBy(m => m.MatchID).ThenBy(m => m.Order).ToList();
+            var Competition = (from m in db.Competitions where m.CompID == compid select m).FirstOrDefault();
             var SendBackList = new List<TeamMatch>();
             var skipthismany = (matchtoselect - 1) * Competition.RunningFields;
             foreach(var match in MatchList.Skip(skipthismany).Take(Competition.RunningFields))
             {
                 SendBackList.Add(match);
             }
-            await Clients.All.SendAsync("theseTeams", SendBackList);
+            await Clients.Clients(compGroups[compid]).SendAsync("theseTeams", SendBackList);
         }
-        public async Task CheckIfValid(int match)
+        public async Task CheckIfValid(int match, int compid)
         {
+            // Is this needed?
             var Competition = (from c in db.Competitions where c.CompID == 1 select c).FirstOrDefault();
             var MatchList = (from m in db.TeamMatches where m.CompID == 1 select m).OrderBy(m => m.MatchID).ThenBy(m => m.Order).ToList();
             var ListToCheck = new List<TeamMatch>();
@@ -367,9 +382,9 @@ namespace RobofestWTECore
                 }
                 i++;
             }
-            await Clients.All.SendAsync("validate", MatchCheck[0], MatchCheck[1], MatchCheck[2], MatchCheck[3], MatchCheck[4], MatchCheck[5]);
+            await Clients.Clients(compGroups[compid]).SendAsync("validate", MatchCheck[0], MatchCheck[1], MatchCheck[2], MatchCheck[3], MatchCheck[4], MatchCheck[5]);
         }
-        public async Task EditSpecificSchedule(int matchid, string calltype)
+        public async Task EditSpecificSchedule(int matchid, string calltype, int compid)
         {
             var SpecificMatch = (from m in db.TeamMatches where m.MatchID == matchid select m).FirstOrDefault();
             if (calltype == "completed")
@@ -407,11 +422,11 @@ namespace RobofestWTECore
             }
             db.TeamMatches.Update(SpecificMatch);
             await db.SaveChangesAsync();
-            await Clients.All.SendAsync("reloadRequired");
+            await Clients.Clients(compGroups[compid]).SendAsync("reloadRequired");
         }
-        public async Task CompleteAll(bool completed)
+        public async Task CompleteAll(bool completed, int compid)
         {
-            var AllMatches = (from m in db.TeamMatches where m.CompID == 1 select m).ToList();
+            var AllMatches = (from m in db.TeamMatches where m.CompID == compid select m).ToList();
             foreach(var match in AllMatches)
             {
                 if(completed == true)
@@ -425,11 +440,11 @@ namespace RobofestWTECore
                 db.TeamMatches.Update(match);
                 await db.SaveChangesAsync();
             }
-            await Clients.All.SendAsync("reloadRequired");
+            await Clients.Clients(compGroups[compid]).SendAsync("reloadRequired");
         }
-        public async Task AutoComplete()
+        public async Task AutoComplete(int compid)
         {
-            var AllMatches = (from m in db.TeamMatches where m.CompID == 1 select m).ToList();
+            var AllMatches = (from m in db.TeamMatches where m.CompID == compid select m).ToList();
             foreach(var match in AllMatches)
             {
                 if (match.TeamNumber.Contains("-") != true)
@@ -468,7 +483,7 @@ namespace RobofestWTECore
                 db.TeamMatches.Update(match);
                 await db.SaveChangesAsync();
             }
-            await Clients.All.SendAsync("reloadRequired");
+            await Clients.Clients(compGroups[compid]).SendAsync("reloadRequired");
         }
         public void StopTimer()
         {
@@ -478,7 +493,7 @@ namespace RobofestWTECore
         {
             if (RunningComp.ContainsKey(compid))
             {
-                Clients.All.SendAsync("initFieldView", field, status, score, teamnumber, connection, matchkeeper, data);
+                Clients.Clients(compGroups[compid]).SendAsync("initFieldView", field, status, score, teamnumber, connection, matchkeeper, data);
                 if (matchkeeper != true)
                 {
 
@@ -489,12 +504,11 @@ namespace RobofestWTECore
                 }
                 RunningComp[compid].Fields[field].Status = status;
             }
-            //ADDTOPAGE
             
             
             //0 = NotInit, 1 = NotReady, 2 = Ready
         }
-        public void LookUpTeam(int id)
+        public void LookUpTeam(int id, int compid)
         {
 
             var teamnumber = (from t in db.StudentTeams where t.TeamID == id select t).FirstOrDefault().TeamNumberBranch + "-" + (from t in db.StudentTeams where t.TeamID == id select t).FirstOrDefault().TeamNumberSpecific;
@@ -502,40 +516,40 @@ namespace RobofestWTECore
             {
                 teamnumber = "No Team";
             }
-            Clients.All.SendAsync("retrieveTeam", teamnumber);
+            Clients.Clients(compGroups[compid]).SendAsync("retrieveTeam", teamnumber);
         }
-        public void PingField(int field)
+        public void PingField(int field, int compid)
         {
-            Clients.All.SendAsync("getPong",field);
+            Clients.Clients(compGroups[compid]).SendAsync("getPong",field);
         }
-        public void Pong(int fieldid, string account)
+        public void Pong(int fieldid, string account, int compid)
         {
-            Clients.All.SendAsync("updateLive", fieldid, account);
+            Clients.Clients(compGroups[compid]).SendAsync("updateLive", fieldid, account);
         }
-        public void SetStage(int stage)
+        public void SetStage(int stage, int compid)
         {
-            Clients.All.SendAsync("changeStage", stage);
+            Clients.Clients(compGroups[compid]).SendAsync("changeStage", stage);
         }
-        public void JudgeHelp(int field, bool helpme)
+        public void JudgeHelp(int field, bool helpme, int compid)
         {
-            Clients.All.SendAsync("helpThisJudge", field, helpme);
+            Clients.Clients(compGroups[compid]).SendAsync("helpThisJudge", field, helpme);
         }
-        public void ScoreCheck(int field, string data, int score, int roundid, string teamnumber)
+        public void ScoreCheck(int field, string data, int score, int roundid, string teamnumber, int compid)
         {
-            Clients.All.SendAsync("checkThisScore", field, data, score, roundid, teamnumber);
+            // Is this needed?
+            Clients.Clients(compGroups[compid]).SendAsync("checkThisScore", field, data, score, roundid, teamnumber);
         }
-        public void SendBroadcast(string message, bool issue, string sender, bool volunteersonly)
+        public void SendBroadcast(string message, bool issue, string sender, bool volunteersonly, int compid)
         {
-            Clients.All.SendAsync("broadcast", message, issue, sender, volunteersonly);
-            Clients.All.SendAsync("chatMessage",message, issue, sender, DateTime.Now, true);
+            Clients.Clients(compGroups[compid]).SendAsync("broadcast", message, issue, sender, volunteersonly);
+            Clients.Clients(compGroups[compid]).SendAsync("chatMessage",message, issue, sender, DateTime.Now, true);
         }
-        public void SendMessage(string message, bool issue, string sender)
+        public void SendMessage(string message, bool issue, string sender, int compid)
         {
-            Clients.All.SendAsync("chatMessage",message, issue, sender, DateTime.Now, false);
+            Clients.Clients(compGroups[compid]).SendAsync("chatMessage",message, issue, sender, DateTime.Now, false);
         }
-        public void TeamSelected(int TeamID, int field, int round)
+        public void TeamSelected(int TeamID, int field, int round, int compid)
         {
-
             var studentTeam = (from r in db.StudentTeams where r.TeamID == TeamID select r).FirstOrDefault();
             if (round == 1)
             {
@@ -563,17 +577,16 @@ namespace RobofestWTECore
             }
             MatchDataModelSent.R1List = MatchDataModelSent.R1List.Where(a => a.FieldR1 == 0).OrderBy(a => a.TeamNumberBranch).ThenBy(a => a.TeamNumberSpecific).ToList();
             MatchDataModelSent.R2List = MatchDataModelSent.R2List.Where(a => a.FieldR2 == 0).OrderByDescending(a => a.TeamNumberBranch).ThenByDescending(a => a.TeamNumberSpecific).ToList();
-            Clients.All.SendAsync("changeList", MatchDataModelSent);
+            Clients.Clients(compGroups[compid]).SendAsync("changeList", MatchDataModelSent);
         }
         public void MatchMaker(string json, int compid)
         {
-            //ADDTOPAGE
             if (RunningComp.ContainsKey(compid))
             {
                 var matcheslist = JsonConvert.DeserializeObject<List<ScheduleItem>>(json);
                 matcheslist = matcheslist.OrderBy(x => x.Field).ToList();
                 //COMPID = 1 for DEMO
-                var competition = (from c in db.Competitions where c.CompID == 1 select c).FirstOrDefault();
+                var competition = (from c in db.Competitions where c.CompID == compid select c).FirstOrDefault();
                 competition.field1preferred = matcheslist[0].TeamNumber;
                 RunningComp[compid].OnDeck[1].TeamNumber = matcheslist[0].TeamNumber;
                 competition.field2preferred = matcheslist[1].TeamNumber;
@@ -594,8 +607,8 @@ namespace RobofestWTECore
                 competition.validmatch6 = matcheslist[5].Valid;
                 db.Competitions.Update(competition);
                 db.SaveChanges();
-                Clients.All.SendAsync("availableSelections", matcheslist[0].TeamNumber, matcheslist[1].TeamNumber, matcheslist[2].TeamNumber, matcheslist[3].TeamNumber, matcheslist[4].TeamNumber, matcheslist[5].TeamNumber, 1);
-                Clients.All.SendAsync("validateSelections", matcheslist[0].Valid, matcheslist[1].Valid, matcheslist[2].Valid, matcheslist[3].Valid, matcheslist[4].Valid, matcheslist[5].Valid);
+                Clients.Clients(compGroups[compid]).SendAsync("availableSelections", matcheslist[0].TeamNumber, matcheslist[1].TeamNumber, matcheslist[2].TeamNumber, matcheslist[3].TeamNumber, matcheslist[4].TeamNumber, matcheslist[5].TeamNumber, 1);
+                Clients.Clients(compGroups[compid]).SendAsync("validateSelections", matcheslist[0].Valid, matcheslist[1].Valid, matcheslist[2].Valid, matcheslist[3].Valid, matcheslist[4].Valid, matcheslist[5].Valid);
                 RunningComp[compid].OnDeck[1].TeamID = 0;
                 RunningComp[compid].OnDeck[2].TeamID = 0;
                 RunningComp[compid].OnDeck[3].TeamID = 0;
@@ -653,7 +666,7 @@ namespace RobofestWTECore
             }
             
         }
-        public async System.Threading.Tasks.Task UpdateUserRoleAsync(string UserName, string RoleName)
+        public async System.Threading.Tasks.Task UpdateUserRoleAsync(string UserName, string RoleName, int compid)
         {
             bool delete = await userManager.IsInRoleAsync(context.Users.Where(u => u.UserName == UserName).FirstOrDefault(), RoleName);
             if (delete == true)
@@ -664,7 +677,7 @@ namespace RobofestWTECore
             {
                 await userManager.AddToRoleAsync(context.Users.Where(u => u.UserName == UserName).FirstOrDefault(), RoleName);
             }
-            await Clients.All.SendAsync("reloadUsers");
+            await Clients.Clients(compGroups[compid]).SendAsync("reloadUsers");
         }
         public void GoToRC(string teamnum)
         {
@@ -680,28 +693,25 @@ namespace RobofestWTECore
         }
         public void JudgeClientConnection(int compid)
         {
-            //ADDTOPAGE
             int[] TeamIDs = { RunningComp[compid].OnDeck[1].TeamID, RunningComp[compid].OnDeck[2].TeamID, RunningComp[compid].OnDeck[3].TeamID, RunningComp[compid].OnDeck[4].TeamID, RunningComp[compid].OnDeck[5].TeamID, RunningComp[compid].OnDeck[6].TeamID };
             string[] TeamNumbers = { RunningComp[compid].OnDeck[1].TeamNumber, RunningComp[compid].OnDeck[2].TeamNumber, RunningComp[compid].OnDeck[3].TeamNumber, RunningComp[compid].OnDeck[4].TeamNumber, RunningComp[compid].OnDeck[5].TeamNumber, RunningComp[compid].OnDeck[6].TeamNumber };
             int[] Rounds = { RunningComp[compid].OnDeck[1].Round, RunningComp[compid].OnDeck[2].Round, RunningComp[compid].OnDeck[3].Round, RunningComp[compid].OnDeck[4].Round, RunningComp[compid].OnDeck[5].Round, RunningComp[compid].OnDeck[6].Round };
             bool[] Reruns = { RunningComp[compid].OnDeck[1].Rerun, RunningComp[compid].OnDeck[2].Rerun, RunningComp[compid].OnDeck[3].Rerun, RunningComp[compid].OnDeck[4].Rerun, RunningComp[compid].OnDeck[5].Rerun, RunningComp[compid].OnDeck[6].Rerun };
             bool[] Tests = { RunningComp[compid].OnDeck[1].Test, RunningComp[compid].OnDeck[2].Test, RunningComp[compid].OnDeck[3].Test, RunningComp[compid].OnDeck[4].Test, RunningComp[compid].OnDeck[5].Test, RunningComp[compid].OnDeck[6].Test };
-            var competition = (from c in db.Competitions where c.CompID == 1 select c).FirstOrDefault();
+            var competition = (from c in db.Competitions where c.CompID == compid select c).FirstOrDefault();
             bool[] validate = { competition.validmatch1, competition.validmatch2, competition.validmatch3, competition.validmatch4, competition.validmatch5, competition.validmatch6 };
             Clients.Client(Context.ConnectionId).SendAsync("fieldDefaults", TeamIDs, TeamNumbers, Rounds, Reruns, Tests, validate);
             Clients.Client(Context.ConnectionId).SendAsync("changeJudgeLock", JudgesLocked);
         }
         public void ScoreKeeperStatusSet(int status, int compid)
         {
-            //ADDTOPAGE
             RunningComp[compid].ScorekeeperStatus = status;
-            Clients.All.SendAsync("scorekeeperStatus", ScorekeeperStatus);
+            Clients.Clients(compGroups[compid]).SendAsync("scorekeeperStatus", ScorekeeperStatus);
         }
         public void LockJudges(bool AllowStatus, int compid)
         {
-            //ADDTOPAGE
             RunningComp[compid].JudgesLocked = AllowStatus;
-            Clients.All.SendAsync("changeJudgeLock", JudgesLocked);
+            Clients.Clients(compGroups[compid]).SendAsync("changeJudgeLock", JudgesLocked);
         }
         public void ConfirmFieldCompletion(int Zone)
         {
@@ -714,7 +724,6 @@ namespace RobofestWTECore
         }
         public void GetFieldData(int compid)
         {
-            //ADDTOPAGE
             Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 1, RunningComp[compid].Fields[1].Status, 0, RunningComp[compid].Fields[1].TeamNumber, true, true, "");
             Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 2, RunningComp[compid].Fields[2].Status, 0, RunningComp[compid].Fields[2].TeamNumber, true, true, "");
             Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 3, RunningComp[compid].Fields[3].Status, 0, RunningComp[compid].Fields[3].TeamNumber, true, true, "");
@@ -733,6 +742,8 @@ namespace RobofestWTECore
                 {
                     await Clients.Client(Context.ConnectionId).SendAsync("authAccept");
                     var auth = new RoAuthUser();
+                    //CHANGE
+                    auth.CompID = 1;
                     var user = context.Users.Where(x => x.UserName == UserName).FirstOrDefault();
                     await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 20);
                     var userwithroles = context.UserRoles.Where(x => x.UserId == user.Id).ToList();
