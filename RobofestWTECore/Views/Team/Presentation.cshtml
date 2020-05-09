@@ -782,6 +782,7 @@
         var compid = @Model.CompData.CompID;
         // Reference the auto-generated proxy for the hub.
         var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+        chat.serverTimeoutInMilliseconds = 10000000;
         // Create a function that the hub can call back to display messages.
         chat.on("changeTeamScores", function (topten) {
             // Add the message to the page.

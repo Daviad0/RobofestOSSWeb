@@ -9,7 +9,7 @@
 </div>
 <br />
 @{ int i = 0;}
-@foreach (var match in Model.Matches.OrderBy(m => m.MatchID).ThenBy(m => m.Order))
+@foreach (var match in Model.Matches.OrderBy(m => m.Order))
         {
             i++;
             string idtoinput = i.ToString() + "-" + match.Order;
@@ -75,6 +75,7 @@
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script>
     var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
+    chat.serverTimeoutInMilliseconds = 10000000;
     var i = 0;
     var reloads = 0;
     var compid = @ViewBag.CompID;
@@ -89,6 +90,9 @@
         var scheduler = {
             "schedules" : []
         }
+        $(document).ready(function () {
+            chat.invoke("initializeClient", compid);
+        });
         $(document).on('click', '#listallteams', function () {
             chat.on("addMatches", function () {
                 var numfields = parseInt($("#numberoffields").val())
@@ -104,9 +108,9 @@
                 };
                 schedule.TeamNumber = $(this).children("#" + localid + "-team").val();
                 schedule.RoundNum = $(this).children("#" + localid + "-round").val();
-                schedule.CompID = 1;
-                schedule.MatchID = i;
-                schedule.Order = 1;
+                schedule.CompID = compid;
+                schedule.MatchID = 0;
+                schedule.Order = i;
                 schedule.Rerun = $("#" + localid + "-rerun").is(":checked");
                 schedule.Test = $("#" + localid + "-testmatch").is(":checked");
                 schedule.Completed = $("#" + localid + "-completed").is(":checked");
