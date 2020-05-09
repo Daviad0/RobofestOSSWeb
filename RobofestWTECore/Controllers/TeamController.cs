@@ -482,7 +482,7 @@ namespace RobofestWTECore.Controllers
         }
 
         // GET: Entry/Create
-        public ActionResult RoundCreate(int id)
+        public ActionResult RoundCreate(int id, int compid)
         {
             var Model = new RoundEntryViewModel();
             var RoundEntry = new RoundEntry();
@@ -510,7 +510,7 @@ namespace RobofestWTECore.Controllers
             RoundEntry.Rerun = Rerun;
             RoundEntry.Usable = true;
             Model.RoundEntryCreated = RoundEntry;
-            ViewBag.CompID = team.CompID;
+            ViewBag.CompID = compid;
             Model.UserName = userManager.GetUserName(User);
             
             return View(RoundEntry);

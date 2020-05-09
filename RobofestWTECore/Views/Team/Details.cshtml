@@ -14,7 +14,7 @@
 <h3 style="text-align:center">@Html.ActionLink("Edit", "TeamEdit", new { id = Model.TeamID })</h3>
 <br />
 <h2 style="text-align:center">Scores:</h2>
-<h4 style="text-align:center">@Html.ActionLink("Create Entry", "RoundCreate", new { id = Model.TeamID })</h4>
+<h4 style="text-align:center">@Html.ActionLink("Create Entry", "RoundCreate", new { id = Model.TeamID, compid = Model.CompID })</h4>
 @{int i = 0;
     int usable = 0;}
 @foreach (var Round in Model.Round.OrderBy(a => a.Round).ThenBy(a => a.Rerun))
