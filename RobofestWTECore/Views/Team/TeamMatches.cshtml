@@ -4,7 +4,8 @@
 <div>
     <input type="button" class="btn btn-success" id="listallteams" value="Save Changes" />
     <input type="button" class="btn btn-danger" id="discardchanges" value="Discard Changes" />
-    <a class="btn btn-warning" href="@Url.Action("TeamMatchesEdit", "Team")">Edit Match Status</a>
+    <input type="button" class="btn btn-default" id="autocompleteall" value="Remove All & Auto Complete" />
+    <a class="btn btn-warning" href="@Url.Action("TeamMatchesEdit", "Team")">Safe Match Edit</a>
     <input type="number" class="input-lg" id="numberoffields" value="@Model.NumFields" />
 </div>
 <br />
@@ -86,6 +87,9 @@
             location.reload(true)
         }
     });
+    chat.on("scheduleComplete", function () {
+        location.reload(true)
+    });
     chat.start().then(function () {
         var scheduler = {
             "schedules" : []
@@ -133,6 +137,9 @@
         });
         $("#discardchanges").on("click", function () {
             location.reload(true);
+        });
+        $("#autocompleteall").on("click", function () {
+            chat.invoke("autoCompleteSchedule", compid);
         });
         //
     

@@ -1924,10 +1924,11 @@
                 chat.invoke("scoreKeeperStatusSet", 2, compid);
             });
             $(document).ready(function () {
+                chat.invoke("initializeClient", compid);
                 chat.invoke("selectThisMatch", 1, compid);
                 chat.invoke("getFieldData", compid);
                 chat.invoke("sendAllMatches", 6, compid);
-                chat.invoke("initializeClient", compid);
+                
             });
             $(".roundbutton1").click(function () {
                 $("#submitteams").attr("hidden", false);

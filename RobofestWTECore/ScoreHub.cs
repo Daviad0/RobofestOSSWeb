@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using RobofestWTECore.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 
 namespace RobofestWTECore
 {
@@ -801,6 +802,46 @@ namespace RobofestWTECore
         public async Task CheckSignalRHub()
         {
             await Clients.Client(Context.ConnectionId).SendAsync("signalRConnected");
+        }
+        public async Task AutoCompleteSchedule(int compid)
+        {
+            var allteamstodelete = (from x in db.TeamMatches where x.CompID == compid select x).ToList();
+            foreach(var team in allteamstodelete)
+            {
+                db.TeamMatches.Remove(team);
+            }
+            await db.SaveChangesAsync();
+            var teamstoadd = (from t in db.StudentTeams where t.CompID == compid select t).ToList();
+            int order = 0;
+            foreach(var team in teamstoadd.OrderBy(x => x.TeamNumberBranch).ThenBy(x => x.TeamNumberSpecific))
+            {
+                order++;
+                var newteammatch = new TeamMatch();
+                newteammatch.Test = false;
+                newteammatch.Rerun = false;
+                newteammatch.Completed = false;
+                newteammatch.CompID = compid;
+                newteammatch.Order = order;
+                newteammatch.RoundNum = 1;
+                newteammatch.TeamNumber = team.TeamNumberBranch.ToString() + "-" + team.TeamNumberSpecific.ToString();
+                await db.TeamMatches.AddAsync(newteammatch);
+            }
+            await db.SaveChangesAsync();
+            foreach (var team in teamstoadd.OrderByDescending(x => x.TeamNumberBranch).ThenByDescending(x => x.TeamNumberSpecific))
+            {
+                order++;
+                var newteammatch = new TeamMatch();
+                newteammatch.Test = false;
+                newteammatch.Rerun = false;
+                newteammatch.Completed = false;
+                newteammatch.CompID = compid;
+                newteammatch.Order = order;
+                newteammatch.RoundNum = 2;
+                newteammatch.TeamNumber = team.TeamNumberBranch.ToString() + "-" + team.TeamNumberSpecific.ToString();
+                await db.TeamMatches.AddAsync(newteammatch);
+            }
+            await db.SaveChangesAsync();
+            await Clients.Client(Context.ConnectionId).SendAsync("scheduleComplete");
         }
         public Task ThrowException()
         {

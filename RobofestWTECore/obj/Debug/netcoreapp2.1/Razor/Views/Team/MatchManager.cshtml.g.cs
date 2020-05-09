@@ -68,7 +68,7 @@ using RobofestWTECore.Data;
 #line default
 #line hidden
             BeginContext(81, 3773, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "4a4148165c5642458f508f375f4fea66", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "7746e8f2a0ed47e8a6cf4f2def66aaf6", async() => {
                 BeginContext(87, 1752, true);
                 WriteLiteral(@"
     <style>
@@ -293,7 +293,7 @@ using RobofestWTECore.Data;
             WriteLiteral("\r\n");
             EndContext();
             BeginContext(3856, 86, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("script", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "2c39d4d49c674c3e992f0f4f7867f7f0", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("script", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "9857ae14e4774b1fad22e0af7ec2c886", async() => {
             }
             );
             __Microsoft_AspNetCore_Mvc_Razor_TagHelpers_UrlResolutionTagHelper = CreateTagHelper<global::Microsoft.AspNetCore.Mvc.Razor.TagHelpers.UrlResolutionTagHelper>();
