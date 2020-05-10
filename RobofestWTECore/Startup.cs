@@ -54,6 +54,7 @@ namespace RobofestWTECore
             services.AddSignalR(hubOptions => {
                 hubOptions.KeepAliveInterval = TimeSpan.FromMinutes(30);
                 hubOptions.EnableDetailedErrors = true;
+                hubOptions.HandshakeTimeout = TimeSpan.FromMinutes(30);
             });
             services.AddSingleton<Controller, TeamController>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
