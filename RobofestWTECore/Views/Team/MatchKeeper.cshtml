@@ -1613,7 +1613,9 @@
         var compid = @Model.Competition.CompID;
         // Reference the auto-generated proxy for the hub.
         const chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
-        chat.serverTimeoutInMilliseconds = 10000000;
+        chat.onclose(function (e) {
+            console.log(e);
+        });
         // Create a function that the hub can call back to display messages.
         function CheckboxSelect() {
             if (this.checked) {

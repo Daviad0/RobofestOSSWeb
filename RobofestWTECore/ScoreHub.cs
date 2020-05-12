@@ -706,7 +706,7 @@ namespace RobofestWTECore
             var competition = (from c in db.Competitions where c.CompID == compid select c).FirstOrDefault();
             bool[] validate = { competition.validmatch1, competition.validmatch2, competition.validmatch3, competition.validmatch4, competition.validmatch5, competition.validmatch6 };
             Clients.Client(Context.ConnectionId).SendAsync("fieldDefaults", TeamIDs, TeamNumbers, Rounds, Reruns, Tests, validate);
-            Clients.Client(Context.ConnectionId).SendAsync("changeJudgeLock", JudgesLocked);
+            Clients.Client(Context.ConnectionId).SendAsync("changeJudgeLock", RunningComp[compid].JudgesLocked);
         }
         public void ScoreKeeperStatusSet(int status, int compid)
         {
@@ -717,7 +717,7 @@ namespace RobofestWTECore
         public void LockJudges(bool AllowStatus, int compid)
         {
             RunningComp[compid].JudgesLocked = AllowStatus;
-            Clients.Clients(compGroups[compid]).SendAsync("changeJudgeLock", JudgesLocked);
+            Clients.Clients(compGroups[compid]).SendAsync("changeJudgeLock", RunningComp[compid].JudgesLocked);
         }
         public void ConfirmFieldCompletion(int Zone)
         {
