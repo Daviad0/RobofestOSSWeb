@@ -1,9 +1,61 @@
-﻿@model List<RobofestWTE.Models.UserListModel>
+﻿@model RobofestWTECore.Models.ViewModels.ManageUserViewModel
 
 @{
     ViewBag.Title = "Users";
 }
+<style>
+    .overlay {
+        position: fixed;
+        display: none;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 2;
+    }
+
+    .textoverlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        color: black;
+        background-color: white;
+        transform: translate(-50%,-50%);
+        -ms-transform: translate(-50%,-50%);
+    }
+</style>
     <body>
+        @if(Model.roleSpecificPage == true)
+        {
+            <div id="adduserstocomp" style="display:none" class="overlay">
+                <div class="textoverlay" style="padding:50px;text-align:center">
+
+                    <h1>Add Users to Competition</h1>
+                    <br />
+                    <div style="overflow:auto;height:400px;background-color:lightcyan">
+                        <table width="100%">
+                            @foreach(var user in Model.nonUsers.OrderBy(x => x.Username))
+                            {
+                                <tr style="border-bottom:1px dashed black">
+                                    <td width="30%">
+                                        <input type="checkbox" style="width:20px;height:20px;padding:5px;font-size:20px;margin:10px" id="@user.UUID"/>
+                                    </td>
+                                    <td width="70%">
+                                        <span style="font-size:20px;font-weight:600;margin:10px">@user.Username</span>
+                                    </td>
+                                </tr>
+                            }
+                        
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <input type="button" id="addusers" value="Add Users"/>
+        }
+        
         <h2>Volunteer Role Management</h2>
 
         <table class="table table-hover">
@@ -19,7 +71,7 @@
                 </th>
             </tr>
 
-            @foreach (var user in Model.OrderBy(x => x.UserName))
+            @foreach (var user in Model.roleSpecificUsers.OrderBy(x => x.UserName))
             {
 
                 <tr>
@@ -95,7 +147,7 @@
                 </th>
             </tr>
 
-            @foreach (var user in Model.Where(u => u.Roles.Contains("Judge")).OrderBy(x => x.UserName))
+            @foreach (var user in Model.roleSpecificUsers.Where(u => u.Roles.Contains("Judge")).OrderBy(x => x.UserName))
             {
 
                 <tr>
@@ -176,6 +228,9 @@
             location.reload(true);
         });
         chat.start().then(function () {
+            $("#addusers").click(function () {
+                $("#adduserstocomp").css("display", "block");
+            });
             $(".judge").click(function () {
                 var username = $(this).val();
                 chat.invoke("updateUserRoleAsync", username, "Judge", compid);

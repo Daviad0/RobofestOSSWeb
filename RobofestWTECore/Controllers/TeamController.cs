@@ -173,7 +173,9 @@ namespace RobofestWTECore.Controllers
         {
             if (User.IsInRole("Admin") || User.IsInRole("Main") || User.IsInRole("Tech"))
             {
-                var Userlist = new List<UserListModel>();
+                var UserModel = new ManageUserViewModel();
+                var RoleUserlist = new List<UserListModel>();
+                var Userlist = new List<UserNameViewModel>();
                 var users = await context.Users.ToListAsync();
                 if(id != 0)
                 {
@@ -240,9 +242,19 @@ namespace RobofestWTECore.Controllers
                             }
                             listitem.UserID = user.Id;
                             listitem.UserName = user.UserName;
-                            Userlist.Add(listitem);
+                            RoleUserlist.Add(listitem);
+                        }
+                        else
+                        {
+                            var useritem = new UserNameViewModel();
+                            useritem.Username = user.UserName;
+                            useritem.UUID = user.Id;
+                            Userlist.Add(useritem);
                         }
                     }
+                    UserModel.roleSpecificUsers = RoleUserlist;
+                    UserModel.nonUsers = Userlist;
+                    UserModel.roleSpecificPage = true;
                 }
                 else
                 {
@@ -307,13 +319,15 @@ namespace RobofestWTECore.Controllers
                         }
                         listitem.UserID = user.Id;
                         listitem.UserName = user.UserName;
-                        Userlist.Add(listitem);
+                        RoleUserlist.Add(listitem);
                     }
+                    UserModel.roleSpecificUsers = RoleUserlist;
+                    UserModel.roleSpecificPage = false;
                 }
                 
 
                 //users = userManager.Users.Where(u => u.Roles)
-                return View(Userlist);
+                return View(UserModel);
             }
             else
             {
