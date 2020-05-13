@@ -77,8 +77,17 @@ namespace RobofestWTECore
             var newCompetition = new StaticCompetition();
             if (!RunningComp.ContainsKey(CompID))
             {
-                Groups.AddToGroupAsync(Context.ConnectionId, "Comp" + CompID.ToString());
+                await Groups.AddToGroupAsync(Context.ConnectionId, "Comp" + CompID.ToString());
                 RunningComp.Add(CompID, newCompetition);
+                //FIND COMP ROLE
+                if(!roleManager.RoleExistsAsync("Comp" + CompID.ToString()).Result)
+                {
+                    var newrole = new IdentityRole();
+                    newrole.Name = "Comp" + CompID.ToString();
+                    newrole.NormalizedName = "COMP" + CompID.ToString();
+                    newrole.Id = (900000 + CompID).ToString();
+                    await roleManager.CreateAsync(newrole);
+                }
             }
             
         }
@@ -682,7 +691,9 @@ namespace RobofestWTECore
             {
                 await userManager.AddToRoleAsync(context.Users.Where(u => u.UserName == UserName).FirstOrDefault(), RoleName);
             }
-            await Clients.Clients(compGroups[compid]).SendAsync("reloadUsers");
+            //await Clients.Clients(compGroups[compid]).SendAsync("reloadUsers");
+            //JUST FOR TESTING USE ALL
+            await Clients.All.SendAsync("reloadUsers");
         }
         public void GoToRC(string teamnum)
         {

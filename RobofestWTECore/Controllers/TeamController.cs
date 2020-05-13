@@ -169,75 +169,149 @@ namespace RobofestWTECore.Controllers
             return View();
         }
         // GET: Entry
-        public async Task<ActionResult> ManageUsers()
+        public async Task<ActionResult> ManageUsers(int id)
         {
             if (User.IsInRole("Admin") || User.IsInRole("Main") || User.IsInRole("Tech"))
             {
                 var Userlist = new List<UserListModel>();
                 var users = await context.Users.ToListAsync();
-                foreach (var user in users)
+                if(id != 0)
                 {
-                    var listitem = new UserListModel();
-                    if (await userManager.IsInRoleAsync(user, "Judge"))
+                    foreach (var user in users)
                     {
-                        listitem.Roles.Add("Judge");
-                        if (await userManager.IsInRoleAsync(user, "Field1"))
+                        if (await userManager.IsInRoleAsync(user, "Comp" + id.ToString()))
                         {
-                            listitem.Roles.Add("Field1");
-                        }
-                        if (await userManager.IsInRoleAsync(user, "Field2"))
-                        {
-                            listitem.Roles.Add("Field2");
-                        }
-                        if (await userManager.IsInRoleAsync(user, "Field3"))
-                        {
-                            listitem.Roles.Add("Field3");
-                        }
-                        if (await userManager.IsInRoleAsync(user, "Field4"))
-                        {
-                            listitem.Roles.Add("Field4");
-                        }
-                        if (await userManager.IsInRoleAsync(user, "Field5"))
-                        {
-                            listitem.Roles.Add("Field5");
-                        }
-                        if (await userManager.IsInRoleAsync(user, "Field6"))
-                        {
-                            listitem.Roles.Add("Field6");
-                        }
-                        if (await userManager.IsInRoleAsync(user, "AllFields"))
-                        {
-                            listitem.Roles.Add("AllFields");
+                            var listitem = new UserListModel();
+                            if (await userManager.IsInRoleAsync(user, "Judge"))
+                            {
+                                listitem.Roles.Add("Judge");
+                                if (await userManager.IsInRoleAsync(user, "Field1"))
+                                {
+                                    listitem.Roles.Add("Field1");
+                                }
+                                if (await userManager.IsInRoleAsync(user, "Field2"))
+                                {
+                                    listitem.Roles.Add("Field2");
+                                }
+                                if (await userManager.IsInRoleAsync(user, "Field3"))
+                                {
+                                    listitem.Roles.Add("Field3");
+                                }
+                                if (await userManager.IsInRoleAsync(user, "Field4"))
+                                {
+                                    listitem.Roles.Add("Field4");
+                                }
+                                if (await userManager.IsInRoleAsync(user, "Field5"))
+                                {
+                                    listitem.Roles.Add("Field5");
+                                }
+                                if (await userManager.IsInRoleAsync(user, "Field6"))
+                                {
+                                    listitem.Roles.Add("Field6");
+                                }
+                                if (await userManager.IsInRoleAsync(user, "AllFields"))
+                                {
+                                    listitem.Roles.Add("AllFields");
+                                }
+                            }
+                            if (await userManager.IsInRoleAsync(user, "Admin"))
+                            {
+                                listitem.Roles.Add("Admin");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "FieldStaff"))
+                            {
+                                listitem.Roles.Add("FieldStaff");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "Manager"))
+                            {
+                                listitem.Roles.Add("Manager");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "Main"))
+                            {
+                                listitem.Roles.Add("Main");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "Tech"))
+                            {
+                                listitem.Roles.Add("Tech");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "Locked"))
+                            {
+                                listitem.Roles.Add("Locked");
+                            }
+                            listitem.UserID = user.Id;
+                            listitem.UserName = user.UserName;
+                            Userlist.Add(listitem);
                         }
                     }
-                    if (await userManager.IsInRoleAsync(user, "Admin"))
-                    {
-                        listitem.Roles.Add("Admin");
-                    }
-                    if (await userManager.IsInRoleAsync(user, "FieldStaff"))
-                    {
-                        listitem.Roles.Add("FieldStaff");
-                    }
-                    if (await userManager.IsInRoleAsync(user, "Manager"))
-                    {
-                        listitem.Roles.Add("Manager");
-                    }
-                    if (await userManager.IsInRoleAsync(user, "Main"))
-                    {
-                        listitem.Roles.Add("Main");
-                    }
-                    if (await userManager.IsInRoleAsync(user, "Tech"))
-                    {
-                        listitem.Roles.Add("Tech");
-                    }
-                    if (await userManager.IsInRoleAsync(user, "Locked"))
-                    {
-                        listitem.Roles.Add("Locked");
-                    }
-                    listitem.UserID = user.Id;
-                    listitem.UserName = user.UserName;
-                    Userlist.Add(listitem);
                 }
+                else
+                {
+                    foreach (var user in users)
+                    {
+                        var listitem = new UserListModel();
+                        if (await userManager.IsInRoleAsync(user, "Judge"))
+                        {
+                            listitem.Roles.Add("Judge");
+                            if (await userManager.IsInRoleAsync(user, "Field1"))
+                            {
+                                listitem.Roles.Add("Field1");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "Field2"))
+                            {
+                                listitem.Roles.Add("Field2");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "Field3"))
+                            {
+                                listitem.Roles.Add("Field3");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "Field4"))
+                            {
+                                listitem.Roles.Add("Field4");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "Field5"))
+                            {
+                                listitem.Roles.Add("Field5");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "Field6"))
+                            {
+                                listitem.Roles.Add("Field6");
+                            }
+                            if (await userManager.IsInRoleAsync(user, "AllFields"))
+                            {
+                                listitem.Roles.Add("AllFields");
+                            }
+                        }
+                        if (await userManager.IsInRoleAsync(user, "Admin"))
+                        {
+                            listitem.Roles.Add("Admin");
+                        }
+                        if (await userManager.IsInRoleAsync(user, "FieldStaff"))
+                        {
+                            listitem.Roles.Add("FieldStaff");
+                        }
+                        if (await userManager.IsInRoleAsync(user, "Manager"))
+                        {
+                            listitem.Roles.Add("Manager");
+                        }
+                        if (await userManager.IsInRoleAsync(user, "Main"))
+                        {
+                            listitem.Roles.Add("Main");
+                        }
+                        if (await userManager.IsInRoleAsync(user, "Tech"))
+                        {
+                            listitem.Roles.Add("Tech");
+                        }
+                        if (await userManager.IsInRoleAsync(user, "Locked"))
+                        {
+                            listitem.Roles.Add("Locked");
+                        }
+                        listitem.UserID = user.Id;
+                        listitem.UserName = user.UserName;
+                        Userlist.Add(listitem);
+                    }
+                }
+                
+
                 //users = userManager.Users.Where(u => u.Roles)
                 return View(Userlist);
             }
