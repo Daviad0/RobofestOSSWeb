@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "Match Manager";
 }
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet">
 <style>
     .btn-group {
         display: flex;
@@ -344,7 +345,7 @@
     }
 </style>
 <nav class="navbar navbar-inverse navbar-fixed-top" style="background-color:lightgray;border:none">
-    <div style="width:100%;background-color:darkorange;color:white;text-align:center;font-size:25px;font-weight:600" id="scorekeeperstatusbar"><span class="fas fa-flag"> REVIEWING SCORES</span></div>
+    <div style="width:100%;background-color:darkorange;color:white;text-align:center;font-size:25px;font-family:'Rubik', sans-serif" id="scorekeeperstatusbar"><span class="fas fa-flag"></span> REVIEWING SCORES</div>
         <div style="justify-content:center;text-align:center">
             <div style="display:inline-block">
                 <div style="background-color:white;padding:5px;border-radius:4px;margin-top:5px;display:inline-block">
@@ -1901,13 +1902,13 @@
        
         chat.on("scorekeeperStatus", function (status) {
             if (status == 0) {
-                $("#scorekeeperstatusbar").html("<span class='fas fa-clock'> CURRENTLY BUSY</span>")
+                $("#scorekeeperstatusbar").html("<span class='fas fa-clock'></span> CURRENTLY BUSY")
                 $("#scorekeeperstatusbar").css("background-color", "gray")
             } else if (status == 1) {
-                $("#scorekeeperstatusbar").html("<span class='fas fa-flag'> REVIEWING SCORES</span>")
+                $("#scorekeeperstatusbar").html("<span class='fas fa-flag'></span> REVIEWING SCORES")
                 $("#scorekeeperstatusbar").css("background-color", "darkorange")
             } else if (status == 2) {
-                $("#scorekeeperstatusbar").html("<span class='fas fa-thumbs-up'> OK</span>")
+                $("#scorekeeperstatusbar").html("<span class='fas fa-thumbs-up'></span> OK")
                 $("#scorekeeperstatusbar").css("background-color", "forestgreen")
             }
         });

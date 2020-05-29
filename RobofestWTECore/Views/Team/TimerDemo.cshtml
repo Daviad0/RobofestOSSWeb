@@ -90,9 +90,9 @@
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: #ecbb06;
+        background-color: transparent;
         color: white;
-        text-align: center;
+        text-align: right;
     }
 
     .createforms {
@@ -208,39 +208,91 @@
   width: 50%;
   padding: 10px;
 }
+     .timerstarted{
+         animation-name: sizeuptimer;
+         animation-duration: 1s;
+         animation-iteration-count: 1;
+     }
+    .timerstopped {
+        animation-name: sizedowntimer;
+        animation-duration: 1s;
+        animation-iteration-count: 1;
+    }
 
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
+    @@keyframes sizeuptimer {
+        0% {
+            font-size: 200px
+        }
+
+        100% {
+            font-size: 300px
+        }
+    }
+    @@keyframes sizedowntimer {
+        0% {
+            font-size: 300px
+        }
+
+        100% {
+            font-size: 200px
+        }
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
 .ournavbar{
     display:none
-}
-    
+}.robofestmascot{
+     position:fixed;
+     bottom:0;
+     right:0;
+ }
+    .robofestlogo {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+    }
+
+    .noselect {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+    }
+    .invalidglow{
+        box-shadow: 0 0 5px rgba(245, 66, 66, 1);
+    }
 </style>
 
 @{var timeStamp = DateTime.UtcNow; }
-<br />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-<div style="background-color:#EEEEEE;border-radius:6px;border:20px solid #EEEEEE;z-index:-1;text-align:center;padding:20px">
-    <div id="timerclass">
-        <div style="border-radius:4px;display:inline-block;border-radius:8px;margin:40px">
-            <strong><span style="border-radius:8px 8px 0px 0px;font-family:Arial, Helvetica, sans-serif;background-color:black;padding:35px;color:white;margin-bottom:0px;margin-top:0px;font-size:200px" class="timerarea"><span id="minutes" class="timerarea minutes">0</span>:<span id="seconds" class="timerarea seconds">00</span></span></strong>
 
+<div style="background-color:#EEEEEE;border-radius:6px;border:20px solid #EEEEEE;z-index:-1;text-align:center;padding:10px" class="noselect">
+    
+    <div id="timerclass">
+        <span style="font-size:40px;font-weight:600" id="messageshow">Game Match</span>
+        <br />
+        <div style="border-radius:4px;display:inline-block;border-radius:8px;margin:40px;margin-top:20px">
+
+            <strong><span style="border-radius:8px 8px 0px 0px;font-family:Arial, Helvetica, sans-serif;background-color:black;padding:25px;padding-right:95px;padding-left:95px;color:white;margin-bottom:0px;margin-top:0px;font-size:200px" class="timerarea"><span id="minutes" class="timerarea minutes">0</span>:<span id="seconds" class="timerarea seconds">00</span></span></strong>
 
             <div style="background-color:lightgray;text-align:center;border-radius:0px 0px 8px 8px">
 
-                <div class="statustimeout status" style="background-color:gray;width:100%;height:40px;border-radius:0px 0px 8px 8px">
+                <div class="statustimeout status" style="background-color:gray;width:100%;height:40px;border-radius:0px 0px 8px 8px;margin-top:-25px">
                     
                 </div>
             </div>
 
         </div>
-        </div>
-    <div style="display:inherit">
+    </div>
+    <div style="display: inherit">
         <table style="width:100%">
             <tr>
                 <td style="width:50%">
@@ -248,7 +300,7 @@
                         <span class="input-group-addon" style="background-color:gray;color:white">
                             <span>Minutes</span>
                         </span>
-                        <input type="number" id="minutesi" value="2" placeholder="Minutes" class="form-control" style="z-index:0" min="0" maxlength="4" />
+                        <input type="number" id="minutesi" placeholder="0 - 180" class="form-control requiredtostart invalidglow" style="z-index:0" min="0" maxlength="4" max="180" />
                     </div>
                 </td>
                 <td style="width:50%">
@@ -256,7 +308,7 @@
                         <span class="input-group-addon" style="background-color:gray;color:white">
                             <span>Seconds</span>
                         </span>
-                        <input type="number" id="secondsi" value="0" placeholder="Seconds" class="form-control" style="z-index:0" min="0" max="59" maxlength="2" />
+                        <input type="number" id="secondsi" placeholder="0 - 59" class="form-control requiredtostart invalidglow" style="z-index:0" min="0" max="59" maxlength="2" />
                     </div>
                 </td>
             </tr>
@@ -268,24 +320,31 @@
             </span>
             <input type="text" id="messagei" class="form-control" style="z-index:0" />
         </div>
-        
+        <br />
         
 
         
-        <br />
-        <input type="button" id="starttimer" value="Start" style="background-color:#1fa128;width:100%;padding:10px;margin-bottom:10px;margin-top:10px;color:white;font-weight:600;border:none;border-radius:8px" />
-        <input type="button" id="stoptimer" value="Stop" style="background-color:#e32b56;width:100%;padding:10px;margin-bottom:10px;color:white;font-weight:600;border:none;border-radius:8px" />
+        <input type="button" id="starttimer" value="Start" style="background-color:lightgray;width:100%;padding:10px;margin-bottom:10px;margin-top:10px;color:white;font-weight:600;border:none;border-radius:8px;cursor:not-allowed" disabled title="The timer must be set to a value above 0:00"/>
+        <input type="button" id="stoptimer" value="Stop" style="background-color:#e32b56;width:100%;padding:10px;margin-bottom:10px;color:white;font-weight:600;border:none;border-radius:8px" hidden/>
         <input type="button" id="confirmstop" value="CONFIRM STOP!" style="background-color:darkred;width:100%;padding:10px;margin-bottom:10px;color:white;font-weight:600;border:none;border-radius:8px" hidden="hidden" />
         <br />
-        <input type="button" id="sendtimer" value="Set to User Specified Value" style="width:100%;padding:10px;margin-bottom:10px;color:white;font-weight:600;border:none;border-radius:8px;background-color:dimgray" />
+        <input type="button" id="sendtimer" value="Set to User Specified Value" style="width:100%;padding:10px;margin-bottom:10px;color:white;font-weight:600;border:none;border-radius:8px;background-color:lightgray;cursor:not-allowed" disabled title="You must input both minutes and seconds!"/>
         <br />
         <input type="button" id="presetmatch" value="Match Preset" style="background-color:deepskyblue;border-radius:5px;border:none;color:white;font-weight:600"/>
         <input type="button" id="presettimeout" value="Timeout Preset" style="background-color:deepskyblue;border-radius:5px;border:none;color:white;font-weight:600" />
         <input type="button" id="presetpittime" value="Pit Preset" style="background-color:deepskyblue;border-radius:5px;border:none;color:white;font-weight:600" />
+        <br />
+        <input type="button" id="presetpresentation" value="Presentation Preset" style="background-color:deepskyblue;border-radius:5px;border:none;color:white;font-weight:600;margin-top:5px" />
+        <input type="button" id="presetqna" value="Q&A Preset" style="background-color:deepskyblue;border-radius:5px;border:none;color:white;font-weight:600" />
         
     </div>
 </div>
-<br />
+<div class="robofestmascot noselect">
+    <img src="~/images/robofestMascot_transp.png" style="width:120px;margin-right:10px;margin-bottom:10px"/>
+</div>
+<div class="robofestlogo noselect">
+    <img src="~/images/robofest_words_transparent.png" style="width:180px;margin-left:20px;margin-bottom:20px"/>
+</div>
 <script src="~/lib/signalr/dist/browser/signalr.js"></script>
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script>
@@ -525,7 +584,7 @@
             });
             $('#sendtimer').click(function () {
                 sendTimer();
-
+                
             });
             $('#starttimer').click(function () {
                 StartTimer();
@@ -537,6 +596,8 @@
                 $("#presetmatch").attr("hidden", true);
                 $("#presettimeout").attr("hidden", true);
                 $("#presetpittime").attr("hidden", true);
+                $("#presetpresentation").attr("hidden", true);
+                $("#presetqna").attr("hidden", true);
 
             });
             function confirmtimerstop() {
@@ -545,8 +606,14 @@
                     $("#confirmstop").val("CONFIRM TIMER STOP (" + confirmstoptimer + ")")
                     setTimeout(confirmtimerstop, 1000);
                 } else {
-                    $('#stoptimer').attr("hidden", false);
-                    $('#confirmstop').attr("hidden", true);
+                    if (timer == false) {
+                        $('#stoptimer').attr("hidden", true);
+                        $('#confirmstop').attr("hidden", true);
+                    } else {
+                        $('#stoptimer').attr("hidden", false);
+                        $('#confirmstop').attr("hidden", true);
+                    }
+                    
                 }
             }
             $("#stoptimer").click(function () {
@@ -563,29 +630,102 @@
                 SetView(minutesc, secondsc, 3);
                 confirmstoptimer = 0;
                 $('#starttimer').attr("hidden", false);
-                $('#stoptimer').attr("hidden", false);
+                $('#stoptimer').attr("hidden", true);
                 $('#confirmstop').attr("hidden", true);
                 $('#sendtimer').attr("hidden", false);
                 $("#presetmatch").attr("hidden", false);
                 $("#presettimeout").attr("hidden", false);
                 $("#presetpittime").attr("hidden", false);
+                $("#presetpresentation").attr("hidden", false);
+                $("#presetqna").attr("hidden", false);
+                if (minutesc == 0 && secondsc == 0) {
+                    $("#starttimer").attr("disabled", true);
+                    $("#starttimer").css("background-color", "lightgray");
+                    $("#starttimer").attr("title", "The timer must be set to a value above 0:00");
+                    $("#starttimer").css("cursor", "not-allowed");
+                }
+                $(".timerarea").addClass("timerstopped");
+                $(".timerarea").removeClass("timerstarted");
+                setTimeout($(".timerarea").css("font-size", "200px"), 1000);
+            });
+            $(".requiredtostart").on('change keydown keypress keyup mousedown click mouseup', function () {
+                if ($("#minutesi").val() != "") {
+                    if ($("#secondsi").val() != "") {
+                        $("#sendtimer").attr("disabled", false);
+                        $("#sendtimer").attr("title", "Set the timer to the current configuration");
+                        $("#sendtimer").css("cursor", "pointer");
+                        $("#sendtimer").css("background-color", "dimgray");
+                        $("#minutesi").removeClass("invalidglow");
+                        $("#secondsi").removeClass("invalidglow");
+                    } else {
+                        $("#sendtimer").attr("disabled", true);
+                        $("#sendtimer").attr("title", "You must input both minutes and seconds!");
+                        $("#sendtimer").css("cursor", "not-allowed");
+                        $("#sendtimer").css("background-color", "lightgray");
+                        $("#minutesi").removeClass("invalidglow");
+                        $("#secondsi").addClass("invalidglow");
+                    }
+                } else {
+                    $("#sendtimer").attr("disabled", true);
+                    $("#sendtimer").attr("title", "You must input both minutes and seconds!");
+                    $("#sendtimer").css("cursor", "not-allowed");
+                    $("#sendtimer").css("background-color", "lightgray");
+                    $("#minutesi").addClass("invalidglow");
+                    if ($("#secondsi").val() != "") {
+                        $("#secondsi").removeClass("invalidglow");
+                    } else {
+                        $("#secondsi").addClass("invalidglow");
+                    }
+                }
             });
             $("#presetmatch").click(function () {
                 $("#minutesi").val(2);
                 $("#secondsi").val(0);
                 $("#messagei").val("Game Match");
+                $("#sendtimer").attr("disabled", false);
+                $("#sendtimer").attr("title", "Set the timer to the current configuration");
+                $("#sendtimer").css("cursor", "pointer");
+                $("#sendtimer").css("background-color", "dimgray");
                 sendTimer();
             });
             $("#presettimeout").click(function () {
                 $("#minutesi").val(5);
                 $("#secondsi").val(0);
                 $("#messagei").val("Field Timeout");
+                $("#sendtimer").attr("disabled", false);
+                $("#sendtimer").attr("title", "Set the timer to the current configuration");
+                $("#sendtimer").css("cursor", "pointer");
+                $("#sendtimer").css("background-color", "dimgray");
                 sendTimer();
             });
             $("#presetpittime").click(function () {
                 $("#minutesi").val(30);
                 $("#secondsi").val(0);
                 $("#messagei").val("Pit Work Time");
+                $("#sendtimer").attr("disabled", false);
+                $("#sendtimer").attr("title", "Set the timer to the current configuration");
+                $("#sendtimer").css("cursor", "pointer");
+                $("#sendtimer").css("background-color", "dimgray");
+                sendTimer();
+            });
+            $("#presetpresentation").click(function () {
+                $("#minutesi").val(4);
+                $("#secondsi").val(0);
+                $("#messagei").val("Presentation Time");
+                $("#sendtimer").attr("disabled", false);
+                $("#sendtimer").attr("title", "Set the timer to the current configuration");
+                $("#sendtimer").css("cursor", "pointer");
+                $("#sendtimer").css("background-color", "dimgray");
+                sendTimer();
+            });
+            $("#presetqna").click(function () {
+                $("#minutesi").val(2);
+                $("#secondsi").val(0);
+                $("#messagei").val("Q&A Time");
+                $("#sendtimer").attr("disabled", false);
+                $("#sendtimer").attr("title", "Set the timer to the current configuration");
+                $("#sendtimer").css("cursor", "pointer");
+                $("#sendtimer").css("background-color", "dimgray");
                 sendTimer();
             });
             function checkPongs() {
@@ -691,15 +831,31 @@
                 minutess = parseInt($("#minutesi").val());
                 secondss = parseInt($("#secondsi").val());
                 message = $("#messagei").val();
+                if (message == "") {
+                    message = "Timer";
+                }
                 initseconds = (minutess * 60) + (secondss);
                 minutesc = minutess;    
                 secondsc = secondss;
-                $("#message").html(message)
+                $("#messageshow").html(message)
+                
                 if (secondsc < 10) {
                     secondsview = "0" + secondsc;
                 } else {
                     secondsview = secondsc;
                 }
+                if (minutesc > 0 || secondsc > 0) {
+                    $("#starttimer").attr("disabled", false);
+                    $("#starttimer").css("background-color", "#1fa128");
+                    $("#starttimer").css("cursor", "pointer");
+                    $("#starttimer").attr("title", "Will instantly start the timer!");
+                } else {
+                    $("#starttimer").attr("disabled", true);
+                    $("#starttimer").css("background-color", "lightgray");
+                    $("#starttimer").css("cursor", "not-allowed");
+                    $("#starttimer").attr("title", "The timer must be set to a value above 0:00");
+                }
+                
                 SetView(minutesc, secondsc, 0);
             }
             function pingTeams() {
@@ -787,14 +943,15 @@
                     part++;
                     window.focus();
                 }, 100);
+                $(".timerarea").removeClass("timerstopped");
+                $(".timerarea").addClass("timerstarted");
+                $('#stoptimer').attr("hidden", false);
+                setTimeout($(".timerarea").css("font-size", "300px"), 1000);
             }
             function TimerEnded() {
                 abort = true;
                 timer = false;
                 $(".timerstatus").css("color", "red");
-                $("#presetmatch").attr("hidden", false);
-                $("#presettimeout").attr("hidden", false);
-                $("#presetpittime").attr("hidden", false);
                 SetView(minutesc, secondsc, 2);
             }
 

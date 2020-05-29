@@ -9,6 +9,7 @@ namespace RobofestWTECore.Models.ViewModels
     {
         public string Username;
         public string UUID;
+        public bool Locked;
 
     }
 }

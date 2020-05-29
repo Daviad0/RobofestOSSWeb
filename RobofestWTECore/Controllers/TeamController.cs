@@ -171,7 +171,7 @@ namespace RobofestWTECore.Controllers
         // GET: Entry
         public async Task<ActionResult> ManageUsers(int id)
         {
-            if (User.IsInRole("Admin") || User.IsInRole("Main") || User.IsInRole("Tech"))
+            if (User.IsInRole("Admin") || User.IsInRole("Main") || User.IsInRole("Tech") || User.IsInRole(id.ToString() + "-Admin") || User.IsInRole(id.ToString() + "-Main") || User.IsInRole(id.ToString() + "-Tech"))
             {
                 var UserModel = new ManageUserViewModel();
                 var RoleUserlist = new List<UserListModel>();
@@ -181,10 +181,11 @@ namespace RobofestWTECore.Controllers
                 {
                     foreach (var user in users)
                     {
+
                         if (await userManager.IsInRoleAsync(user, "Comp" + id.ToString()))
                         {
                             var listitem = new UserListModel();
-                            if (await userManager.IsInRoleAsync(user, "Judge"))
+                            if (await userManager.IsInRoleAsync(user, id.ToString() + "-Judge"))
                             {
                                 listitem.Roles.Add("Judge");
                                 if (await userManager.IsInRoleAsync(user, "Field1"))
@@ -216,23 +217,23 @@ namespace RobofestWTECore.Controllers
                                     listitem.Roles.Add("AllFields");
                                 }
                             }
-                            if (await userManager.IsInRoleAsync(user, "Admin"))
+                            if (await userManager.IsInRoleAsync(user, id.ToString() + "-Admin"))
                             {
                                 listitem.Roles.Add("Admin");
                             }
-                            if (await userManager.IsInRoleAsync(user, "FieldStaff"))
+                            if (await userManager.IsInRoleAsync(user, id.ToString() + "-Field"))
                             {
                                 listitem.Roles.Add("FieldStaff");
                             }
-                            if (await userManager.IsInRoleAsync(user, "Manager"))
+                            if (await userManager.IsInRoleAsync(user, id.ToString() + "-Manager"))
                             {
                                 listitem.Roles.Add("Manager");
                             }
-                            if (await userManager.IsInRoleAsync(user, "Main"))
+                            if (await userManager.IsInRoleAsync(user, id.ToString() + "-Main"))
                             {
                                 listitem.Roles.Add("Main");
                             }
-                            if (await userManager.IsInRoleAsync(user, "Tech"))
+                            if (await userManager.IsInRoleAsync(user, id.ToString() + "-Tech"))
                             {
                                 listitem.Roles.Add("Tech");
                             }
@@ -246,10 +247,23 @@ namespace RobofestWTECore.Controllers
                         }
                         else
                         {
-                            var useritem = new UserNameViewModel();
-                            useritem.Username = user.UserName;
-                            useritem.UUID = user.Id;
-                            Userlist.Add(useritem);
+                            if(!await userManager.IsInRoleAsync(user, "ota"))
+                            {
+                                
+                                var useritem = new UserNameViewModel();
+                                if (await userManager.IsInRoleAsync(user, "Locked"))
+                                {
+                                    useritem.Locked = true;
+                                }
+                                else
+                                {
+                                    useritem.Locked = false;
+                                }
+                                useritem.Username = user.UserName;
+                                useritem.UUID = user.Id;
+                                Userlist.Add(useritem);
+                            }
+                            
                         }
                     }
                     UserModel.roleSpecificUsers = RoleUserlist;
@@ -258,6 +272,7 @@ namespace RobofestWTECore.Controllers
                 }
                 else
                 {
+                    //CHANGE TO WHICH COMPETITION EACH USER IS APART OF
                     foreach (var user in users)
                     {
                         var listitem = new UserListModel();

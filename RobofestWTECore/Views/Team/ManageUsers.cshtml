@@ -40,10 +40,10 @@
                             @foreach(var user in Model.nonUsers.OrderBy(x => x.Username))
                             {
                                 <tr style="border-bottom:1px dashed black">
-                                    <td width="30%">
-                                        <input type="checkbox" style="width:20px;height:20px;padding:5px;font-size:20px;margin:10px" id="@user.UUID"/>
+                                    <td width="15%">
+                                        <input type="checkbox" style="width:20px;height:20px;padding:5px;font-size:20px;margin:10px" id="@user.UUID" class="userselect"/>
                                     </td>
-                                    <td width="70%">
+                                    <td width="85%">
                                         <span style="font-size:20px;font-weight:600;margin:10px">@user.Username</span>
                                     </td>
                                 </tr>
@@ -51,11 +51,12 @@
                         
                         </table>
                     </div>
+                    <input type="button" style="background-color:lime" value="Add Selected Users" id="addselectedusers"/>
                 </div>
             </div>
             <input type="button" id="addusers" value="Add Users"/>
         }
-        
+        <input type="button" id="generate" value="Generate Accounts"/>
         <h2>Volunteer Role Management</h2>
 
         <table class="table table-hover">
@@ -68,6 +69,9 @@
                 </th>
                 <th>
                     Add or Remove
+                </th>
+                <th>
+                    Delete?
                 </th>
             </tr>
 
@@ -128,11 +132,14 @@
                         <button type="button" class="tech" id="@user.UserID" value="@user.UserName">Website Manager</button>
                         <button type="button" class="banned" id="@user.UserID" style="background-color:palevioletred" value="@user.UserName">Lock Out</button>
                     </td>
+                    <td>
+                        <button type="button" class="remove btn-danger" id="@user.UserID" value="@user.UserName">Remove From Competition</button>
+                    </td>
                 </tr>
             }
 
         </table>
-
+        <p id="jsonoutput"></p>
         <h2>Judge Field Assignments</h2>
         <table class="table table-hover">
             <tr style="font-size:20px">
@@ -220,12 +227,35 @@
 <script src="~/lib/signalr/dist/browser/signalr.js"></script>
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script>
+    function download(filename, text) {
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    }
     $(function () {
         // Reference the auto-generated proxy for the hub.
         var chat = new signalR.HubConnectionBuilder().withUrl("/scoreHub").build();
         var compid = 1;
+        var listtoadd = [];
+        var jsonclient = "";
         chat.on("reloadUsers", function (field, helping) {
             location.reload(true);
+        });
+        chat.on("returnedAccounts", function (json) {
+            jsonclient = json;
+            $("#generate").css("background-color", "green");
+            $("#jsonoutput").html(json);
+            download("robofestaccountinfo.csv", json);
+        });
+        chat.on("returnedAccountsFailed", function () {
+            $("#generate").css("background-color", "red");
         });
         chat.start().then(function () {
             $("#addusers").click(function () {
@@ -233,23 +263,23 @@
             });
             $(".judge").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Judge", compid);
+                chat.invoke("updateUserRoleAsync", username, compid+"-Judge", compid);
             });
             $(".manager").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Manager", compid);
+                chat.invoke("updateUserRoleAsync", username, compid+"-Manager", compid);
             });
             $(".fieldstaff").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "FieldStaff", compid);
+                chat.invoke("updateUserRoleAsync", username, compid+"-Field", compid);
             });
             $(".admin").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Admin", compid);
+                chat.invoke("updateUserRoleAsync", username, compid+"-Admin", compid);
             });
             $(".tech").click(function () {
                 var username = $(this).val();
-                chat.invoke("updateUserRoleAsync", username, "Tech", compid);
+                chat.invoke("updateUserRoleAsync", username, compid+"-Tech", compid);
             });
             $(".banned").click(function () {
                 var username = $(this).val();
@@ -282,6 +312,19 @@
             $(".fieldaa").click(function () {
                 var username = $(this).val();
                 chat.invoke("updateUserRoleAsync", username, "AllFields", compid);
+            });
+            $(".remove").click(function () {
+                var username = $(this).val();
+                chat.invoke("removeUserFromComp", username, compid);
+            });
+            $("#generate").click(function () {
+                chat.invoke("generateUserAccounts", compid);
+            });
+            $("#addselectedusers").click(function () {
+                $(".userselect:checked").each(function () {
+                    listtoadd.push(this.id);
+                });
+                chat.invoke("addUsersToComp", listtoadd, compid);
             });
 
         });

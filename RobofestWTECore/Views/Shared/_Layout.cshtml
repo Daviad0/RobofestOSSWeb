@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - RobofestWTECore</title>
@@ -20,21 +21,23 @@
         <link rel="stylesheet" href="~/lib/loading-bar/dist/loading-bar.css" />
     </environment>
 </head>
-<body>
-    <nav class="navbar navbar-inverse navbar-fixed-top ournavbar" style="background-color:darkorange">
-        <div class="container">
+<body style="padding-top:90px">
+    <nav class="navbar navbar-inverse navbar-fixed-top ournavbar" style="background-color:#0a6cf5">
+        
+        <div class="container" style="margin-top:0px">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse" style="margin-top:20px">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a href="@Url.Action("Index", "Home")" class="navbar-brand" style="color:white;font-weight:700">RobofestWTECore</a>
+                <img src="~/images/rosswhiteNAVBAR.png" style="height:80px" class="navbar-brand"/>
+                @*<a href="@Url.Action("Index", "Home")" class="navbar-brand" style="color:white;font-weight:700">RobofestWTECore</a>*@
             </div>
-            <div class="navbar-collapse collapse">
+            <div class="navbar-collapse collapse" style="margin-top:15px">
                 <ul class="nav navbar-nav">
-                    <li><a href="@Url.Action("Landing", "Home")"><input type="button" onclick="on()" style="display:inline-block;font-family:Calibri;background-color:white;color:orange;border:none" value="Volunteers" /></a></li>
+                    <li><a href="@Url.Action("Landing", "Home")"><input type="button" onclick="on()" style="display:inline-block;font-family:Calibri;background-color:white;color:#0a6cf5;border:none" value="Volunteers" /></a></li>
                     
                 </ul>
                 <partial name="_LoginPartial" />
@@ -46,7 +49,7 @@
         @RenderBody()
         <hr class="ournavbar" />
         <footer class="ournavbar">
-            <p>&copy; 2020 - RobofestWTECore</p>
+            <p style="color:gray">Website created and designed by David Reeves</p>
         </footer>
     </div>
 
@@ -72,5 +75,13 @@
     </environment>
 
     @RenderSection("Scripts", required: false)
+    <script>
+      var OneSignal = window.OneSignal || [];
+      OneSignal.push(function() {
+        OneSignal.init({
+          appId: "1132e860-d6fb-46ef-ba1a-6fd962a8233e",
+        });
+      });
+    </script>
 </body>
 </html>

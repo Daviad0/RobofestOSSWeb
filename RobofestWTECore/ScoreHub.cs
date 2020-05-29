@@ -80,13 +80,49 @@ namespace RobofestWTECore
                 await Groups.AddToGroupAsync(Context.ConnectionId, "Comp" + CompID.ToString());
                 RunningComp.Add(CompID, newCompetition);
                 //FIND COMP ROLE
-                if(!roleManager.RoleExistsAsync("Comp" + CompID.ToString()).Result)
+                if(!roleManager.RoleExistsAsync(CompID.ToString() + "-Judge").Result)
                 {
-                    var newrole = new IdentityRole();
-                    newrole.Name = "Comp" + CompID.ToString();
-                    newrole.NormalizedName = "COMP" + CompID.ToString();
-                    newrole.Id = (900000 + CompID).ToString();
-                    await roleManager.CreateAsync(newrole);
+                    //START CREATING COMP ROLES
+                    var judgerole = new IdentityRole();
+                    judgerole.Name = CompID.ToString() + "-Judge";
+                    judgerole.NormalizedName = CompID.ToString() + "-JUDGE";
+                    judgerole.Id = Guid.NewGuid().ToString();
+                    await roleManager.CreateAsync(judgerole);
+                    var fieldrole = new IdentityRole();
+                    fieldrole.Name = CompID.ToString() + "-Field";
+                    fieldrole.NormalizedName = CompID.ToString() + "-FIELD";
+                    fieldrole.Id = Guid.NewGuid().ToString();
+                    await roleManager.CreateAsync(fieldrole);
+                    var techrole = new IdentityRole();
+                    techrole.Name = CompID.ToString() + "-Tech";
+                    techrole.NormalizedName = CompID.ToString() + "-TECH";
+                    techrole.Id = Guid.NewGuid().ToString();
+                    await roleManager.CreateAsync(techrole);
+                    var managerrole = new IdentityRole();
+                    managerrole.Name = CompID.ToString() + "-Manager";
+                    managerrole.NormalizedName = CompID.ToString() + "-MANAGER";
+                    managerrole.Id = Guid.NewGuid().ToString();
+                    await roleManager.CreateAsync(managerrole);
+                    var mainrole = new IdentityRole();
+                    mainrole.Name = CompID.ToString() + "-Main";
+                    mainrole.NormalizedName = CompID.ToString() + "-MAIN";
+                    mainrole.Id = Guid.NewGuid().ToString();
+                    await roleManager.CreateAsync(mainrole);
+                    var adminrole = new IdentityRole();
+                    adminrole.Name = CompID.ToString() + "-Admin";
+                    adminrole.NormalizedName = CompID.ToString() + "-ADMIN";
+                    adminrole.Id = Guid.NewGuid().ToString();
+                    await roleManager.CreateAsync(adminrole);
+                }
+                if (!roleManager.RoleExistsAsync("Comp" + CompID.ToString()).Result)
+                {
+                    //START CREATING COMP ROLE
+                    var comprole = new IdentityRole();
+                    comprole.Name = "Comp" + CompID.ToString();
+                    comprole.NormalizedName = "COMP" + CompID.ToString();
+                    comprole.Id = (900000+CompID).ToString();
+                    await roleManager.CreateAsync(comprole);
+                    
                 }
             }
             
@@ -291,6 +327,7 @@ namespace RobofestWTECore
         public void SendTimer(int minutes, int seconds, string message, int status, int compid)
         {
             Clients.Clients(compGroups[compid]).SendAsync("changeGlobalTimer", minutes, seconds, message, status);
+            Clients.All.SendAsync("changeGlobalTimerWPF", minutes, seconds, message, status);
             //0 = STOPPED, 1 = RUNNING, 2 = DONE
         }
         public void StartTimer()
@@ -516,6 +553,7 @@ namespace RobofestWTECore
                     RunningComp[compid].Fields[field].Data = data;
                 }
                 RunningComp[compid].Fields[field].Status = status;
+                Clients.All.SendAsync("appLiveScores", field, status, score, teamnumber, connection, matchkeeper, data, compid);
             }
             
             
@@ -695,6 +733,110 @@ namespace RobofestWTECore
             //JUST FOR TESTING USE ALL
             await Clients.All.SendAsync("reloadUsers");
         }
+        public async void AddUsersToComp(string[] users, int compid)
+        {
+            foreach(var userid in users)
+            {
+                var result = userManager.AddToRoleAsync(context.Users.Where(u => u.Id == userid).FirstOrDefault(), "Comp" + compid.ToString()).Result;
+            }
+            await Clients.All.SendAsync("reloadUsers");
+        }
+        public async void RemoveUserFromComp(string username, int compid)
+        {
+            var result = userManager.RemoveFromRoleAsync(context.Users.Where(u => u.UserName == username).FirstOrDefault(), "Comp" + compid.ToString()).Result;
+            await Clients.All.SendAsync("reloadUsers");
+        }
+        public async void GenerateUserAccounts(int compid)
+        {
+            var ifroleexists = userManager.FindByNameAsync("Judge_" + compid.ToString() + "-1").Result;
+            if(ifroleexists == null)
+            {
+                List<ClientSeededAccounts> clientSeededAccounts = new List<ClientSeededAccounts>();
+                var judge1 = new ApplicationUser();
+                var judge2 = new ApplicationUser();
+                var judge3 = new ApplicationUser();
+                var judge4 = new ApplicationUser();
+                var judge5 = new ApplicationUser();
+                var judge6 = new ApplicationUser();
+                judge1.UserName = "Judge_" + compid.ToString() + "-1";
+                judge2.UserName = "Judge_" + compid.ToString() + "-2";
+                judge3.UserName = "Judge_" + compid.ToString() + "-3";
+                judge4.UserName = "Judge_" + compid.ToString() + "-4";
+                judge5.UserName = "Judge_" + compid.ToString() + "-5";
+                judge6.UserName = "Judge_" + compid.ToString() + "-6";
+                judge1.NormalizedUserName = "JUDGE_" + compid.ToString() + "-1";
+                judge2.NormalizedUserName = "JUDGE_" + compid.ToString() + "-2";
+                judge3.NormalizedUserName = "JUDGE_" + compid.ToString() + "-3";
+                judge4.NormalizedUserName = "JUDGE_" + compid.ToString() + "-4";
+                judge5.NormalizedUserName = "JUDGE_" + compid.ToString() + "-5";
+                judge6.NormalizedUserName = "JUDGE_" + compid.ToString() + "-6";
+                judge1.Email = "JUDGE" + compid.ToString() + "-1@robofest.judge";
+                judge2.Email = "JUDGE" + compid.ToString() + "-2@robofest.judge";
+                judge3.Email = "JUDGE" + compid.ToString() + "-3@robofest.judge";
+                judge4.Email = "JUDGE" + compid.ToString() + "-4@robofest.judge";
+                judge5.Email = "JUDGE" + compid.ToString() + "-5@robofest.judge";
+                judge6.Email = "JUDGE" + compid.ToString() + "-6@robofest.judge";
+                judge1.NormalizedEmail = "JUDGE" + compid.ToString() + "-1@robofest.judge";
+                judge2.NormalizedEmail = "JUDGE" + compid.ToString() + "-2@robofest.judge";
+                judge3.NormalizedEmail = "JUDGE" + compid.ToString() + "-3@robofest.judge";
+                judge4.NormalizedEmail = "JUDGE" + compid.ToString() + "-4@robofest.judge";
+                judge5.NormalizedEmail = "JUDGE" + compid.ToString() + "-5@robofest.judge";
+                judge6.NormalizedEmail = "JUDGE" + compid.ToString() + "-6@robofest.judge";
+                judge1.Id = Guid.NewGuid().ToString();
+                judge2.Id = Guid.NewGuid().ToString();
+                judge3.Id = Guid.NewGuid().ToString();
+                judge4.Id = Guid.NewGuid().ToString();
+                judge5.Id = Guid.NewGuid().ToString();
+                judge6.Id = Guid.NewGuid().ToString();
+                string Judge1Pass = "J!" + Guid.NewGuid().ToString("n").Substring(0, 8);
+                string Judge2Pass = "J!" + Guid.NewGuid().ToString("n").Substring(0, 8);
+                string Judge3Pass = "J!" + Guid.NewGuid().ToString("n").Substring(0, 8);
+                string Judge4Pass = "J!" + Guid.NewGuid().ToString("n").Substring(0, 8);
+                string Judge5Pass = "J!" + Guid.NewGuid().ToString("n").Substring(0, 8);
+                string Judge6Pass = "J!" + Guid.NewGuid().ToString("n").Substring(0, 8);
+                _ = userManager.CreateAsync(judge1, Judge1Pass).Result;
+                clientSeededAccounts.Add(new ClientSeededAccounts() { Username = judge1.UserName, GeneratedPassword = Judge1Pass });
+                _ = userManager.CreateAsync(judge2, Judge2Pass).Result;
+                clientSeededAccounts.Add(new ClientSeededAccounts() { Username = judge2.UserName, GeneratedPassword = Judge2Pass });
+                _ = userManager.CreateAsync(judge3, Judge3Pass).Result;
+                clientSeededAccounts.Add(new ClientSeededAccounts() { Username = judge3.UserName, GeneratedPassword = Judge3Pass });
+                _ = userManager.CreateAsync(judge4, Judge4Pass).Result;
+                clientSeededAccounts.Add(new ClientSeededAccounts() { Username = judge4.UserName, GeneratedPassword = Judge4Pass });
+                _ = userManager.CreateAsync(judge5, Judge5Pass).Result;
+                clientSeededAccounts.Add(new ClientSeededAccounts() { Username = judge5.UserName, GeneratedPassword = Judge5Pass });
+                _ = userManager.CreateAsync(judge6, Judge6Pass).Result;
+                clientSeededAccounts.Add(new ClientSeededAccounts() { Username = judge6.UserName, GeneratedPassword = Judge6Pass });
+
+
+                _ = userManager.AddToRoleAsync(judge1, "Comp" + compid.ToString()).Result;
+                _ = userManager.AddToRoleAsync(judge1, compid.ToString() + "-Judge").Result;
+                _ = userManager.AddToRoleAsync(judge2, "Comp" + compid.ToString()).Result;
+                _ = userManager.AddToRoleAsync(judge2, compid.ToString() + "-Judge").Result;
+                _ = userManager.AddToRoleAsync(judge3, "Comp" + compid.ToString()).Result;
+                _ = userManager.AddToRoleAsync(judge3, compid.ToString() + "-Judge").Result;
+                _ = userManager.AddToRoleAsync(judge4, "Comp" + compid.ToString()).Result;
+                _ = userManager.AddToRoleAsync(judge4, compid.ToString() + "-Judge").Result;
+                _ = userManager.AddToRoleAsync(judge5, "Comp" + compid.ToString()).Result;
+                _ = userManager.AddToRoleAsync(judge5, compid.ToString() + "-Judge").Result;
+                _ = userManager.AddToRoleAsync(judge6, "Comp" + compid.ToString()).Result;
+                _ = userManager.AddToRoleAsync(judge6, compid.ToString() + "-Judge").Result;
+
+
+                var csvtopassback = "Username,Generated Password" + Environment.NewLine;
+                foreach(var account in clientSeededAccounts)
+                {
+                    csvtopassback = csvtopassback + account.Username + "," + account.GeneratedPassword + Environment.NewLine;
+                }
+
+                await Clients.All.SendAsync("returnedAccounts", csvtopassback);
+
+
+            }
+            else
+            {
+                await Clients.All.SendAsync("returnedAccountsFailed");
+            }
+        }
         public void GoToRC(string teamnum)
         {
             var teamnumbereach = teamnum.Split("-");
@@ -748,37 +890,46 @@ namespace RobofestWTECore
             Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 5, RunningComp[compid].Fields[5].Status, 0, RunningComp[compid].Fields[5].TeamNumber, true, true, "");
             Clients.Client(Context.ConnectionId).SendAsync("initFieldView", 6, RunningComp[compid].Fields[6].Status, 0, RunningComp[compid].Fields[6].TeamNumber, true, true, "");
         }
-        public async Task AppLogin(string UserName, string Password)
+        public async Task AppLogin(string UserName, string Password, int compid)
         {
             
             var usertosignin = context.Users.Where(u => u.UserName == UserName).FirstOrDefault();
             if(usertosignin != null)
             {
+                
                 var loginResult = _signInManager.CheckPasswordSignInAsync(usertosignin, Password, false);
                 if (loginResult.Result.Succeeded)
                 {
-                    await Clients.Client(Context.ConnectionId).SendAsync("authAccept");
-                    var auth = new RoAuthUser();
-                    //CHANGE
-                    auth.CompID = 1;
-                    var user = context.Users.Where(x => x.UserName == UserName).FirstOrDefault();
-                    await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 20);
-                    var userwithroles = context.UserRoles.Where(x => x.UserId == user.Id).ToList();
-                    await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 35);
-                    foreach (var roletoadd in userwithroles)
+                    if(userManager.IsInRoleAsync(usertosignin, "Judge_"+ compid.ToString()+"-1").Result || userManager.IsInRoleAsync(usertosignin, "Judge_" + compid.ToString() + "-2").Result || userManager.IsInRoleAsync(usertosignin, "Judge_" + compid.ToString() + "-3").Result || userManager.IsInRoleAsync(usertosignin, "Judge_" + compid.ToString() + "-4").Result || userManager.IsInRoleAsync(usertosignin, "Judge_" + compid.ToString() + "-5").Result || userManager.IsInRoleAsync(usertosignin, "Judge_" + compid.ToString() + "-6").Result || userManager.IsInRoleAsync(usertosignin, "Main").Result)
                     {
-                        auth.Roles.Add(context.Roles.Where(x => x.Id == roletoadd.RoleId).FirstOrDefault());
+                        await Clients.Client(Context.ConnectionId).SendAsync("authAccept");
+                        var auth = new RoAuthUser();
+                        //CHANGE
+                        auth.CompID = 1;
+                        var user = context.Users.Where(x => x.UserName == UserName).FirstOrDefault();
+                        await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 20);
+                        var userwithroles = context.UserRoles.Where(x => x.UserId == user.Id).ToList();
+                        await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 35);
+                        foreach (var roletoadd in userwithroles)
+                        {
+                            auth.Roles.Add(context.Roles.Where(x => x.Id == roletoadd.RoleId).FirstOrDefault());
+                        }
+                        await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 50);
+                        auth.Username = UserName;
+                        await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 65);
+                        auth.LastSeen = "Logging in...";
+                        await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 70);
+                        string authToken = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+                        await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 75);
+                        appAuthUsers.Add(authToken, auth);
+                        await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 80);
+                        await Clients.Client(Context.ConnectionId).SendAsync("authSucc", authToken, appSessionID);
                     }
-                    await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 50);
-                    auth.Username = UserName;
-                    await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 65);
-                    auth.LastSeen = "Logging in...";
-                    await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 70);
-                    string authToken = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
-                    await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 75);
-                    appAuthUsers.Add(authToken, auth);
-                    await Clients.Client(Context.ConnectionId).SendAsync("authProgress", 80);
-                    await Clients.Client(Context.ConnectionId).SendAsync("authSucc", authToken, appSessionID);
+                    else
+                    {
+                        await Clients.Client(Context.ConnectionId).SendAsync("authRoleFail");
+                    }
+                    
                 }
                 else
                 {
@@ -813,6 +964,17 @@ namespace RobofestWTECore
         public async Task CheckSignalRHub()
         {
             await Clients.Client(Context.ConnectionId).SendAsync("signalRConnected");
+        }
+        public async Task GetTeamsUpNow(int compid)
+        {
+            var listoffields = new List<StaticField>();
+            listoffields.Add(RunningComp[compid].Fields[1]);
+            listoffields.Add(RunningComp[compid].Fields[2]);
+            listoffields.Add(RunningComp[compid].Fields[3]);
+            listoffields.Add(RunningComp[compid].Fields[4]);
+            listoffields.Add(RunningComp[compid].Fields[5]);
+            listoffields.Add(RunningComp[compid].Fields[6]);
+            await Clients.Client(Context.ConnectionId).SendAsync("teamsUpNow", listoffields);
         }
         public async Task AutoCompleteSchedule(int compid)
         {
@@ -853,6 +1015,10 @@ namespace RobofestWTECore
             }
             await db.SaveChangesAsync();
             await Clients.Client(Context.ConnectionId).SendAsync("scheduleComplete");
+        }
+        public async Task appSubmitMatch(string userToken, string sessionToken)
+        {
+
         }
         public Task ThrowException()
         {
